@@ -1,27 +1,25 @@
 openapi: 3.0.0
 info:
-  title: Servicios Home Allianz Network - GOP User Management
+  title: Servicios Home Allianz Network - Connected User Information
   version: 1.0.0
   description: |
-    API documentation for GOP (Grupo-Organizador-Productor) User Management endpoints.
+    API documentation for ApiInfUsuarioConectadoController endpoints.
     
-    This controller manages the GOP hierarchy and user associations. GOP is a three-level
-    organizational structure used in Allianz Argentina:
-    - **Grupo (Group)**: Top level organizational group
-    - **Organizador (Organizer)**: Middle level - organizes multiple producers
-    - **Productor (Producer)**: Bottom level - individual producer/agent
+    This file documents 1 endpoint from the ApiInfUsuarioConectadoController.
     
-    **Total Endpoints**: 6 (5 GET, 1 PUT)
-    
-    For common components and security schemes, see: openapi-common.yaml
+    **Common Components**: For shared schemas and security configuration, see `openapi-common.yaml`
 
+# Reference common file (for documentation purposes)
+x-common-spec: openapi-common.yaml
+
+# Use same servers as common file
 servers:
   - url: https://api.allianz.com.ar/v1
     description: Production
+  - url: http://localhost:8080/v1
+    description: Local Development
 
-security:
-  - oauth2: []
-
+# Use same security schemes as common file
 components:
   securitySchemes:
     oauth2:
@@ -32,658 +30,177 @@ components:
           tokenUrl: http://testauth.allianz.com.ar/token
           scopes: {}
 
-  schemas:
-    # ========================================
-    # Common Schemas (referenced from common)
-    # ========================================
-    TyHeader:
-      type: object
-      required:
-        - uuid
-        - userName
-        - userAuthProvider
-        - applicationId
-      properties:
-        uuid:
-          type: string
-          example: "550e8400-e29b-41d4-a716-446655440000"
-        userName:
-          type: string
-          example: "john.doe"
-        userAuthProvider:
-          type: number
-          example: 1
-        applicationId:
-          type: number
-          example: 100
+# Default security for this controller
+security:
+  - oauth2: []
 
-    TyResponse:
-      type: object
-      properties:
-        responseCode:
-          type: number
-          example: 200
-        responseId:
-          type: string
-          nullable: true
-          example: null
-        description:
-          type: string
-          nullable: true
-          example: null
-
-    # ========================================
-    # GOP Codigo Descripcion Types
-    # ========================================
-    TyGopCodigoDescripcion:
-      type: object
-      description: GOP code and description object (Grupo-Organizador-Productor)
-      properties:
-        codGrupo:
-          type: string
-          nullable: true
-          description: Group code
-          example: "2638"
-        descGrupo:
-          type: string
-          nullable: true
-          description: Group description
-          example: "EUROSECURITY S. A."
-        codOrganizador:
-          type: string
-          nullable: true
-          description: Organizer code
-          example: "M2638"
-        descOrganizador:
-          type: string
-          nullable: true
-          description: Organizer description
-          example: "EUROSECURITY S. A."
-        codProductor:
-          type: string
-          nullable: true
-          description: Producer code
-          example: null
-        descProductor:
-          type: string
-          nullable: true
-          description: Producer description
-          example: null
-        indicVigente:
-          type: string
-          nullable: true
-          description: Active indicator (S=Yes, N=No)
-          example: "S"
-        nroNivelGop:
-          type: string
-          nullable: true
-          description: GOP level number
-          example: null
-        indicProdInspector:
-          type: string
-          nullable: true
-          description: Producer inspector indicator
-          example: null
-
-    TyGopCodigoDescripcionOut:
-      type: object
-      description: GOP query response (inner structure, not root)
-      properties:
-        response:
-          $ref: '#/components/schemas/TyResponse'
-        gopCodigoDescripcion:
-          type: array
-          nullable: true
-          description: Array of GOP code/description items
-          items:
-            $ref: '#/components/schemas/TyGopCodigoDescripcion'
-
-    TyGopCodigoDescripcionIn:
-      type: object
-      description: GOP query request (inner structure, not root)
-      properties:
-        header:
-          $ref: '#/components/schemas/TyHeader'
-        gopUser:
-          $ref: '#/components/schemas/TyGopCodigoDescripcion'
-          nullable: true
-          description: GOP user filter criteria (optional)
-
-    # ========================================
-    # Pareja Usuario Types
-    # ========================================
-    TyParejaUsuario:
-      type: object
-      description: User's GOP pair (selected combination of Group-Organizer-Producer)
-      properties:
-        idParejaUsuario:
-          type: number
-          nullable: true
-          description: GOP pair unique identifier
-          example: 123
-        codGrupo:
-          type: string
-          nullable: true
-          description: Group code
-          example: "001"
-        codOrganizador:
-          type: string
-          nullable: true
-          description: Organizer code
-          example: "ORG001"
-        codProductor:
-          type: string
-          nullable: true
-          description: Producer code
-          example: "PROD001"
-        nombre:
-          type: string
-          nullable: true
-          description: GOP pair name/description
-          example: "Sales Team Alpha"
-
-    TyParejaUsuarioOut:
-      type: object
-      description: GOP pair response (inner structure, not root)
-      properties:
-        response:
-          $ref: '#/components/schemas/TyResponse'
-        parejasUsuario:
-          type: array
-          nullable: true
-          description: Array of user's GOP pairs
-          items:
-            $ref: '#/components/schemas/TyParejaUsuario'
-
-    TyParejaUsuarioIn:
-      type: object
-      description: GOP pair request (inner structure, not root)
-      properties:
-        header:
-          $ref: '#/components/schemas/TyHeader'
-        parejaUsuario:
-          $ref: '#/components/schemas/TyParejaUsuario'
-          nullable: true
-          description: GOP pair data for update operations
+tags:
+  - name: Connected User Information
+    description: Provides information about the currently authenticated user
 
 paths:
-  /user/organizador:
+  /user/information:
     get:
-      summary: Get User Organizers
+      summary: Get Connected User Information
       description: |
-        Retrieves the list of organizers (second level of GOP hierarchy) associated with 
-        the authenticated user. This endpoint returns all organizers that the user has 
-        permission to access within their assigned groups.
+        Retrieves detailed information about the currently authenticated user, including 
+        name, surname, email, and birthday.
         
-        **Database Procedure**: 
-        - Schema: `COMERCIAL`
-        - Package: `API_GOP_USER`
-        - Procedure: `P_GET_USER_ORGANIZADOR`
+        **Database Procedure**:
+        - Schema: `API_CORE`
+        - Package: `API_INF_USUARIO_CONECTADO`
+        - Procedure: `P_GET_USER_INFORMATION`
         
         **Security**: 
         - Authentication: Required (OAuth2)
         - Authorization: Any authenticated user
         
-        **Business Logic**: 
-        - Queries user's accessible organizers based on authentication context
-        - Returns organizer codes and descriptions
-        - Includes group information for each organizer
-        - Filters active (vigente) organizers
-      operationId: pGetUserOrganizador
+        **Use Cases**:
+        - Display user profile information
+        - Show personalized welcome messages
+        - Populate user profile forms
+        
+      operationId: getUserInformation
       tags:
-        - GOP User Management
+        - Connected User Information
       security:
         - oauth2: []
-      parameters:
-        - name: codGrupo
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Optional filter by group code
-        - name: codOrganizador
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Optional filter by organizer code
       responses:
         '200':
-          description: Success
+          description: User information retrieved successfully
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  GopCodigoDescripcionOut:
+                  InfUsuarioConectadoOut:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TyGopCodigoDescripcionOut'
+                      $ref: '#/components/schemas/TyInfUsuarioConectadoOut'
               example:
-                GopCodigoDescripcionOut:
+                InfUsuarioConectadoOut:
                   - response:
                       responseCode: 200
                       responseId: null
                       description: null
-                    gopCodigoDescripcion:
-                      - codGrupo: "2638"
-                        descGrupo: "EUROSECURITY S. A."
-                        codOrganizador: "M2638"
-                        descOrganizador: "EUROSECURITY S. A."
-                        codProductor: null
-                        descProductor: null
-                        indicVigente: "S"
-                        nroNivelGop: null
-                        indicProdInspector: null
+                    infUsuarioConectado:
+                      id: 12345
+                      descNombre: "Juan"
+                      descApellido: "Pérez"
+                      descEmail: "juan.perez@allianz.com.ar"
+                      feCumpleAnos: "1985-03-15"
         '400':
-          description: Bad Request - Invalid parameters or SQL error
+          description: Bad Request - Invalid parameters or SQL exception
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  GopCodigoDescripcionOut:
+                  InfUsuarioConectadoOut:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TyGopCodigoDescripcionOut'
+                      $ref: '#/components/schemas/TyInfUsuarioConectadoOut'
               example:
-                GopCodigoDescripcionOut:
+                InfUsuarioConectadoOut:
                   - response:
                       responseCode: 400
                       responseId: null
-                      description: "Error en request: Invalid group code"
-                    gopCodigoDescripcion: []
+                      description: "Error en request: Invalid user session"
+                    infUsuarioConectado: null
         '401':
           description: Unauthorized - Missing or invalid authentication token
-        '500':
-          description: Internal Server Error
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  GopCodigoDescripcionOut:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+        '500':
+          description: Internal Server Error - Unexpected error occurred
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  InfUsuarioConectadoOut:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TyGopCodigoDescripcionOut'
+                      $ref: '#/components/schemas/TyInfUsuarioConectadoOut'
               example:
-                GopCodigoDescripcionOut:
+                InfUsuarioConectadoOut:
                   - response:
                       responseCode: 500
                       responseId: null
                       description: "Error inesperado"
-                    gopCodigoDescripcion: []
+                    infUsuarioConectado: null
 
-  /user/parejas-gop/actual:
-    get:
-      summary: Get User's Current GOP Pair
-      description: |
-        Retrieves the currently selected GOP pair (Grupo-Organizador-Productor combination) 
-        for the authenticated user. This represents the active context the user is working in.
-        
-        **Database Procedure**: 
-        - Schema: `COMERCIAL`
-        - Package: `API_GOP_USER`
-        - Procedure: `P_GET_USER_PAREJA_ACTUAL`
-        
-        **Security**: 
-        - Authentication: Required (OAuth2)
-        - Authorization: Any authenticated user
-        
-        **Business Logic**: 
-        - Returns the user's currently active GOP pair
-        - If no pair is selected, returns empty array
-        - Used to maintain user session context
-      operationId: pGetUserParejaActual
-      tags:
-        - GOP User Management
-      security:
-        - oauth2: []
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ParejaUsuarioOut:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/TyParejaUsuarioOut'
-              example:
-                ParejaUsuarioOut:
-                  - response:
-                      responseCode: 200
-                      responseId: null
-                      description: null
-                    parejasUsuario:
-                      - idParejaUsuario: 456
-                        codGrupo: "2638"
-                        codOrganizador: "M2638"
-                        codProductor: "P001"
-                        nombre: "Current Working Pair"
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Internal Server Error
-
-  /user/parejas-gop:
-    get:
-      summary: Get User's GOP Pairs
-      description: |
-        Retrieves all available GOP pairs (Grupo-Organizador-Productor combinations) 
-        that the authenticated user has access to. Users can have multiple GOP pairs 
-        representing different organizational contexts they can work in.
-        
-        **Database Procedure**: 
-        - Schema: `COMERCIAL`
-        - Package: `API_GOP_USER`
-        - Procedure: `P_GET_USER_PAREJA`
-        
-        **Security**: 
-        - Authentication: Required (OAuth2)
-        - Authorization: Any authenticated user
-        
-        **Business Logic**: 
-        - Returns all GOP pairs configured for the user
-        - Each pair represents a valid Group-Organizer-Producer combination
-        - Used to populate selection lists in the UI
-      operationId: pGetUserPareja
-      tags:
-        - GOP User Management
-      security:
-        - oauth2: []
-      parameters:
-        - name: idParejaUsuario
-          in: query
-          required: false
-          schema:
-            type: number
-          description: Optional filter by GOP pair ID
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ParejaUsuarioOut:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/TyParejaUsuarioOut'
-              example:
-                ParejaUsuarioOut:
-                  - response:
-                      responseCode: 200
-                      responseId: null
-                      description: null
-                    parejasUsuario:
-                      - idParejaUsuario: 123
-                        codGrupo: "001"
-                        codOrganizador: "ORG001"
-                        codProductor: "PROD001"
-                        nombre: "Sales Team Alpha"
-                      - idParejaUsuario: 124
-                        codGrupo: "001"
-                        codOrganizador: "ORG001"
-                        codProductor: "PROD002"
-                        nombre: "Sales Team Beta"
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Internal Server Error
-
-    put:
-      summary: Update User's GOP Pair
-      description: |
-        Updates or sets the user's active GOP pair. This changes the organizational context 
-        the user is currently working in. The selected pair affects which data and 
-        operations the user can access.
-        
-        **Database Procedure**: 
-        - Schema: `COMERCIAL`
-        - Package: `API_GOP_USER`
-        - Procedure: `P_PUT_USER_PAREJA`
-        
-        **Security**: 
-        - Authentication: Required (OAuth2)
-        - Authorization: Any authenticated user
-        
-        **Business Logic**: 
-        - Validates the GOP pair belongs to the user
-        - Updates the user's current active pair
-        - May trigger session context refresh
-        - Returns updated configuration (typically empty array on success)
-      operationId: pPutUserPareja
-      tags:
-        - GOP User Management
-      security:
-        - oauth2: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                ParejaUsuarioIn:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/TyParejaUsuarioIn'
-            example:
-              ParejaUsuarioIn:
-                - header:
-                    uuid: "550e8400-e29b-41d4-a716-446655440000"
-                    userName: "john.doe"
-                    userAuthProvider: 1
-                    applicationId: 100
-                  parejaUsuario:
-                    idParejaUsuario: 123
-                    codGrupo: "001"
-                    codOrganizador: "ORG001"
-                    codProductor: "PROD001"
-                    nombre: "Sales Team Alpha"
-      responses:
-        '200':
-          description: Success - GOP pair updated
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ParejaUsuarioOut:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/TyParejaUsuarioOut'
-              example:
-                ParejaUsuarioOut:
-                  - response:
-                      responseCode: 200
-                      responseId: null
-                      description: "GOP pair updated successfully"
-                    parejasUsuario: []
-        '400':
-          description: Bad Request - Invalid GOP pair or user doesn't have access
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ParejaUsuarioOut:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/TyParejaUsuarioOut'
-              example:
-                ParejaUsuarioOut:
-                  - response:
-                      responseCode: 400
-                      responseId: null
-                      description: "Error en request: Invalid GOP pair ID"
-                    parejasUsuario: []
-        '401':
-          description: Unauthorized
-        '500':
-          description: Internal Server Error
-
-  /user/grupo:
-    get:
-      summary: Get User Groups
-      description: |
-        Retrieves the list of groups (top level of GOP hierarchy) that the authenticated 
-        user has access to. Groups are the highest level of organization in the GOP structure.
-        
-        **Database Procedure**: 
-        - Schema: `COMERCIAL`
-        - Package: `API_GOP_USER`
-        - Procedure: `P_GET_USER_GRUPO`
-        
-        **Security**: 
-        - Authentication: Required (OAuth2)
-        - Authorization: Any authenticated user
-        
-        **Business Logic**: 
-        - Returns all groups assigned to the user
-        - Used as first level filter in GOP selection
-        - Groups contain organizers and producers
-      operationId: pGetUserGrupo
-      tags:
-        - GOP User Management
-      security:
-        - oauth2: []
-      parameters:
-        - name: codGrupo
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Optional filter by specific group code
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  GopCodigoDescripcionOut:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/TyGopCodigoDescripcionOut'
-              example:
-                GopCodigoDescripcionOut:
-                  - response:
-                      responseCode: 200
-                      responseId: null
-                      description: null
-                    gopCodigoDescripcion:
-                      - codGrupo: "2638"
-                        descGrupo: "EUROSECURITY S. A."
-                        codOrganizador: null
-                        descOrganizador: null
-                        codProductor: null
-                        descProductor: null
-                        indicVigente: "S"
-                        nroNivelGop: "1"
-                        indicProdInspector: null
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Internal Server Error
-
-  /user/productor:
-    get:
-      summary: Get User Producers
-      description: |
-        Retrieves the list of producers (bottom level of GOP hierarchy) associated with 
-        the authenticated user. Producers are individual agents or production units 
-        within the organization.
-        
-        **Database Procedure**: 
-        - Schema: `COMERCIAL`
-        - Package: `API_GOP_USER`
-        - Procedure: `P_GET_USER_PRODUCTOR`
-        
-        **Security**: 
-        - Authentication: Required (OAuth2)
-        - Authorization: Any authenticated user
-        
-        **Business Logic**: 
-        - Returns producers accessible to the user
-        - Can be filtered by group and organizer
-        - Used as third level in GOP hierarchy selection
-        - May include inspector indicator for special producer types
-      operationId: pGetUserProductor
-      tags:
-        - GOP User Management
-      security:
-        - oauth2: []
-      parameters:
-        - name: codGrupo
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Optional filter by group code
-        - name: codOrganizador
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Optional filter by organizer code
-        - name: codProductor
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Optional filter by specific producer code
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  GopCodigoDescripcionOut:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/TyGopCodigoDescripcionOut'
-              example:
-                GopCodigoDescripcionOut:
-                  - response:
-                      responseCode: 200
-                      responseId: null
-                      description: null
-                    gopCodigoDescripcion:
-                      - codGrupo: "2638"
-                        descGrupo: "EUROSECURITY S. A."
-                        codOrganizador: "M2638"
-                        descOrganizador: "EUROSECURITY S. A."
-                        codProductor: "P001"
-                        descProductor: "Producer Alpha"
-                        indicVigente: "S"
-                        nroNivelGop: "3"
-                        indicProdInspector: "N"
-                      - codGrupo: "2638"
-                        descGrupo: "EUROSECURITY S. A."
-                        codOrganizador: "M2638"
-                        descOrganizador: "EUROSECURITY S. A."
-                        codProductor: "P002"
-                        descProductor: "Producer Beta"
-                        indicVigente: "S"
-                        nroNivelGop: "3"
-                        indicProdInspector: "S"
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Internal Server Error
+components:
+  schemas:
+    # Output Type (Inner structure - inside root array)
+    TyInfUsuarioConectadoOut:
+      type: object
+      description: Connected user information response object (inner structure, not root)
+      required:
+        - response
+      properties:
+        response:
+          $ref: '#/components/schemas/TyResponse'
+        infUsuarioConectado:
+          $ref: '#/components/schemas/TyInfUsuarioConectado'
+          nullable: true
+          description: Connected user details (null on error)
+    
+    # Business Data Object
+    TyInfUsuarioConectado:
+      type: object
+      description: Connected user detailed information
+      properties:
+        id:
+          type: number
+          description: User ID
+          example: 12345
+          nullable: true
+        descNombre:
+          type: string
+          description: User's first name
+          example: "Juan"
+          nullable: true
+        descApellido:
+          type: string
+          description: User's last name / surname
+          example: "Pérez"
+          nullable: true
+        descEmail:
+          type: string
+          format: email
+          description: User's email address
+          example: "juan.perez@allianz.com.ar"
+          nullable: true
+        feCumpleAnos:
+          type: string
+          description: User's birthday (date format can vary)
+          example: "1985-03-15"
+          nullable: true
+    
+    # Standard Response (from common)
+    TyResponse:
+      type: object
+      description: Standard response metadata
+      properties:
+        responseCode:
+          type: integer
+          description: Response status code (HTTP status or custom business code)
+          example: 200
+          nullable: true
+        responseId:
+          type: string
+          description: Optional response identifier for tracking
+          example: null
+          nullable: true
+        description:
+          type: string
+          description: Response message (null on success, error message on failure)
+          example: null
+          nullable: true
