@@ -1,398 +1,218 @@
-openapi: 3.0.0
-info:
-  title: API de Gestión de Personas
-  version: 1.0.0
-  description: API para el alta y gestión de información de personas.
-
-servers:
-  - url: /api/v1
-    description: Servidor principal de la API
-
-paths:
-  /personas/alta:
-    post:
-      summary: Registra una nueva persona
-      description: Permite registrar una nueva persona en el sistema con todos sus datos asociados (documentos, domicilios, contactos, etc.).
-      requestBody:
-        description: Datos de la persona a registrar
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AzAltaPersonasIn'
-            example:
-              AzAltaPersonasIn:
-                personaBase:
-                  listaDocumentos:
-                    - tipoPersonaFj: 1
-                      idTipoDocumento: 2
-                      nroDocumento: 21340564
-                      sexo: 2
-                      nombre: "MARTIN"
-                      apellido: "PEREZ"
-                      estadoCivil: 1
-                      fechaNacim: "27/12/1978"
-                      lugarNacim: 54
-                      nacionalidad: 1
-                      genero: null
-                      razonSocial: null
-                      listaDomicilios:
-                        - principal: "S"
-                          idTipoCalle: "3"
-                          domicilio: "COLON 1446"
-                          nroPuerta: 1446
-                          piso: null
-                          nroCasa: "57"
-                          nroEscalera: null
-                          nroCuerpo: null
-                          observaciones: null
-                          codPais: "54"
-                          codProvincia: "02"
-                          codMunicipio: "003"
-                          codPostal: 1618
-                          country: null
-                          lote: null
-                      listaTelefonos:
-                        - idTipoTelefono: 1
-                          telefono: 1163739052
-                      listaCorreos:
-                        - idTipoCorreo: 1
-                          correo: "martin.perez@gmail.com"
-                      listaActividades:
-                        - idActividadAfip: 8
-                          mcaPrincipal: "S"
-                      listaLavadoDinero:
-                        - pep: 0
-                          esPep: 0
-                          obligado: 0
-                      listaAsociaciones:
-                        - nroDocumento: 58
-                          nombreApellido: null
-                      listaImpuestos:
-                        - idCondFiscal: 2
-                          idCondIb: 1
-                          numIngresos: 33
-                          idCondGanancias: 4
-      responses:
-        '200':
-          description: Persona registrada exitosamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  mensaje:
-                    type: string
-                    example: "Persona registrada correctamente."
-        '400':
-          description: Solicitud inválida
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Error en los datos de entrada."
-        '500':
-          description: Error interno del servidor
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Se ha producido un error interno."
-
-components:
-  schemas:
-    AzAltaPersonasIn:
-      type: object
-      properties:
-        AzAltaPersonasIn:
-          type: object
-          properties:
-            personaBase:
-              $ref: '#/components/schemas/PersonaBase'
-      required:
-        - AzAltaPersonasIn
-
-    PersonaBase:
-      type: object
-      properties:
-        listaDocumentos:
-          type: array
-          items:
-            $ref: '#/components/schemas/Documento'
-      required:
-        - listaDocumentos
-
-    Documento:
-      type: object
-      properties:
-        tipoPersonaFj:
-          type: integer
-          format: int32
-          description: Tipo de persona (Física/Jurídica)
-        idTipoDocumento:
-          type: integer
-          format: int32
-          description: ID del tipo de documento
-        nroDocumento:
-          type: integer
-          format: int32
-          description: Número de documento de la persona
-        sexo:
-          type: integer
-          format: int32
-          description: Sexo de la persona (1=Masculino, 2=Femenino, etc.)
-        nombre:
-          type: string
-          description: Nombre de la persona
-        apellido:
-          type: string
-          description: Apellido de la persona
-        estadoCivil:
-          type: integer
-          format: int32
-          description: Estado civil de la persona
-        fechaNacim:
-          type: string
-          format: date
-          description: Fecha de nacimiento (formato DD/MM/YYYY)
-          pattern: '^\\d{2}/\\d{2}/\\d{4}$'
-        lugarNacim:
-          type: integer
-          format: int32
-          description: ID del lugar de nacimiento
-        nacionalidad:
-          type: integer
-          format: int32
-          description: ID de la nacionalidad
-        genero:
-          type: string
-          nullable: true
-          description: Género de la persona (puede ser nulo)
-        razonSocial:
-          type: string
-          nullable: true
-          description: Razón social (para personas jurídicas, puede ser nulo)
-        listaDomicilios:
-          type: array
-          items:
-            $ref: '#/components/schemas/Domicilio'
-        listaTelefonos:
-          type: array
-          items:
-            $ref: '#/components/schemas/Telefono'
-        listaCorreos:
-          type: array
-          items:
-            $ref: '#/components/schemas/Correo'
-        listaActividades:
-          type: array
-          items:
-            $ref: '#/components/schemas/Actividad'
-        listaLavadoDinero:
-          type: array
-          items:
-            $ref: '#/components/schemas/LavadoDinero'
-        listaAsociaciones:
-          type: array
-          items:
-            $ref: '#/components/schemas/Asociacion'
-        listaImpuestos:
-          type: array
-          items:
-            $ref: '#/components/schemas/Impuesto'
-      required:
-        - tipoPersonaFj
-        - idTipoDocumento
-        - nroDocumento
-        - sexo
-        - nombre
-        - apellido
-        - estadoCivil
-        - fechaNacim
-        - lugarNacim
-        - nacionalidad
-        - listaDomicilios
-        - listaTelefonos
-        - listaCorreos
-        - listaActividades
-        - listaLavadoDinero
-        - listaAsociaciones
-        - listaImpuestos # Incluye todos los arrays como requeridos si siempre deben enviarse, incluso vacíos.
-
-    Domicilio:
-      type: object
-      properties:
-        principal:
-          type: string
-          description: Indica si es el domicilio principal (S/N)
-        idTipoCalle:
-          type: string # En el JSON era "3" (string), no 3 (integer)
-          description: ID del tipo de calle
-        domicilio:
-          type: string
-          description: Dirección completa del domicilio
-        nroPuerta:
-          type: integer
-          nullable: true
-          description: Número de puerta del domicilio (puede ser nulo)
-        piso:
-          type: string
-          nullable: true
-          description: Piso del domicilio (puede ser nulo)
-        nroCasa:
-          type: string # En el JSON era "57" (string), no 57 (integer)
-          description: Número de casa o departamento
-        nroEscalera:
-          type: string
-          nullable: true
-          description: Número de escalera (puede ser nulo)
-        nroCuerpo:
-          type: string
-          nullable: true
-          description: Número de cuerpo (puede ser nulo)
-        observaciones:
-          type: string
-          nullable: true
-          description: Observaciones adicionales del domicilio (puede ser nulo)
-        codPais:
-          type: string
-          description: Código de país
-        codProvincia:
-          type: string
-          description: Código de provincia
-        codMunicipio:
-          type: string
-          description: Código de municipio
-        codPostal:
-          type: integer
-          format: int32
-          description: Código postal
-        country:
-          type: string
-          nullable: true
-          description: País (nombre, puede ser nulo)
-        lote:
-          type: string
-          nullable: true
-          description: Número de lote (puede ser nulo)
-      required:
-        - principal
-        - idTipoCalle
-        - domicilio
-        - nroCasa
-        - codPais
-        - codProvincia
-        - codMunicipio
-        - codPostal
-
-    Telefono:
-      type: object
-      properties:
-        idTipoTelefono:
-          type: integer
-          format: int32
-          description: ID del tipo de teléfono
-        telefono:
-          type: integer
-          format: int64
-          description: Número de teléfono
-      required:
-        - idTipoTelefono
-        - telefono
-
-    Correo:
-      type: object
-      properties:
-        idTipoCorreo:
-          type: integer
-          format: int32
-          description: ID del tipo de correo
-        correo:
-          type: string
-          format: email
-          description: Dirección de correo electrónico
-      required:
-        - idTipoCorreo
-        - correo
-
-    Actividad:
-      type: object
-      properties:
-        idActividadAfip:
-          type: integer
-          format: int32
-          description: ID de la actividad AFIP
-        mcaPrincipal:
-          type: string
-          description: Indicador de actividad principal (S/N)
-      required:
-        - idActividadAfip
-        - mcaPrincipal
-
-    LavadoDinero:
-      type: object
-      properties:
-        pep:
-          type: integer
-          format: int32
-          description: Indicador de Persona Expuesta Políticamente (0=No, 1=Sí)
-        esPep:
-          type: integer
-          format: int32
-          description: Indicador si es PEP (0=No, 1=Sí)
-        obligado:
-          type: integer
-          format: int32
-          description: Indicador si está obligado a reportar (0=No, 1=Sí)
-      required:
-        - pep
-        - esPep
-        - obligado
-
-    Asociacion:
-      type: object
-      properties:
-        nroDocumento:
-          type: integer
-          format: int32
-          nullable: true
-          description: Número de documento asociado (puede ser nulo)
-        nombreApellido:
-          type: string
-          nullable: true
-          description: Nombre y apellido del asociado (puede ser nulo)
-      # Nota: En el JSON, `nombreApellido` puede ser nulo, y `nroDocumento` puede estar ausente o ser nulo.
-      # Se asume que al menos uno de los dos es opcional.
-      # Si al menos uno debe estar presente, se requeriría una lógica oneOf/anyOf.
-      # Por simplicidad, se marcan ambos como opcionales si no hay un 'required' explícito.
-
-    Impuesto:
-      type: object
-      properties:
-        idCondFiscal:
-          type: integer
-          format: int32
-          description: ID de la condición fiscal
-        idCondIb:
-          type: integer
-          format: int32
-          description: ID de la condición de Ingresos Brutos
-        numIngresos:
-          type: integer
-          format: int32
-          description: Número de ingresos
-        idCondGanancias:
-          type: integer
-          format: int32
-          description: ID de la condición de Ganancias
-      required:
-        - idCondFiscal
-        - idCondIb
-        - numIngresos
-        - idCondGanancias
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API de Denuncias Allianz",
+    "version": "1.0.0",
+    "description": "API para dar de alta una denuncia sin aparente (sin AP) en el sistema de seguros."
+  },
+  "servers": [
+    {
+      "url": "http://example.allianz.com.ar/api/denuncias",
+      "description": "Servidor de Producción de Denuncias"
+    }
+  ],
+  "paths": {
+    "/alta": {
+      "post": {
+        "summary": "Crear una nueva denuncia sin AP.",
+        "description": "Recibe los datos de una denuncia para ser registrada en el sistema.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AltaDenunciaSinApIn"
+              },
+              "example": {
+                "AltaDenunciaSinApIn": {
+                  "datosDenuncia": {
+                    "codGrupo": "2401",
+                    "codOrganizador": "M2401",
+                    "codProductor": "M2401",
+                    "codSeccion": "210",
+                    "fecOcurrecia": "2024-08-25",
+                    "fecDenuncia": "2024-08-25",
+                    "nroPoliza": "242100522986",
+                    "nroRiesgo": 1,
+                    "nroEndoso": 5
+                  },
+                  "detalleDenuncia": {
+                    "idSeccion": "210",
+                    "idTipoSiniestro": "A",
+                    "deTipoSiniestro": "ACCIDENTE",
+                    "idCausaSiniestro": "IP",
+                    "deCausaSiniestro": "INCAPACIDAD PARCIAL",
+                    "deHechos": "Venia circulando y me choco una bicicleta",
+                    "indExtemporaneo": "N",
+                    "deExtemporaneo": null,
+                    "nroRiesgoUbicacion": 1,
+                    "emailAsegurado": "HORACIORIV2012@HOTMAIL.COM",
+                    "telefAsegurado": "02323641800"
+                  },
+                  "detalleAp": {
+                    "idProvinciaOcurr": "01",
+                    "idLocalidadOcurr": "005",
+                    "idCpOcur": "6708",
+                    "deDirCalleOcurr": "9 DE JULIO",
+                    "deDirNroOcurr": "2500",
+                    "deTareas": "CONTADOR",
+                    "indTareasSiniestro": "S",
+                    "deDanos": "Esguince de tobillo"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Denuncia creada con éxito.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": {
+                      "type": "string"
+                    },
+                    "nroDenuncia": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "mensaje": "Denuncia registrada correctamente.",
+                  "nroDenuncia": "123456789"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida. El formato de los datos es incorrecto."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AltaDenunciaSinApIn": {
+        "type": "object",
+        "properties": {
+          "datosDenuncia": {
+            "$ref": "#/components/schemas/DatosDenuncia"
+          },
+          "detalleDenuncia": {
+            "$ref": "#/components/schemas/DetalleDenuncia"
+          },
+          "detalleAp": {
+            "$ref": "#/components/schemas/DetalleAp"
+          }
+        }
+      },
+      "DatosDenuncia": {
+        "type": "object",
+        "properties": {
+          "codGrupo": {
+            "type": "string"
+          },
+          "codOrganizador": {
+            "type": "string"
+          },
+          "codProductor": {
+            "type": "string"
+          },
+          "codSeccion": {
+            "type": "string"
+          },
+          "fecOcurrecia": {
+            "type": "string",
+            "format": "date"
+          },
+          "fecDenuncia": {
+            "type": "string",
+            "format": "date"
+          },
+          "nroPoliza": {
+            "type": "string"
+          },
+          "nroRiesgo": {
+            "type": "integer"
+          },
+          "nroEndoso": {
+            "type": "integer"
+          }
+        }
+      },
+      "DetalleDenuncia": {
+        "type": "object",
+        "properties": {
+          "idSeccion": {
+            "type": "string"
+          },
+          "idTipoSiniestro": {
+            "type": "string"
+          },
+          "deTipoSiniestro": {
+            "type": "string"
+          },
+          "idCausaSiniestro": {
+            "type": "string"
+          },
+          "deCausaSiniestro": {
+            "type": "string"
+          },
+          "deHechos": {
+            "type": "string"
+          },
+          "indExtemporaneo": {
+            "type": "string"
+          },
+          "deExtemporaneo": {
+            "type": "string",
+            "nullable": true
+          },
+          "nroRiesgoUbicacion": {
+            "type": "integer"
+          },
+          "emailAsegurado": {
+            "type": "string",
+            "format": "email"
+          },
+          "telefAsegurado": {
+            "type": "string"
+          }
+        }
+      },
+      "DetalleAp": {
+        "type": "object",
+        "properties": {
+          "idProvinciaOcurr": {
+            "type": "string"
+          },
+          "idLocalidadOcurr": {
+            "type": "string"
+          },
+          "idCpOcur": {
+            "type": "string"
+          },
+          "deDirCalleOcurr": {
+            "type": "string"
+          },
+          "deDirNroOcurr": {
+            "type": "string"
+          },
+          "deTareas": {
+            "type": "string"
+          },
+          "indTareasSiniestro": {
+            "type": "string"
+          },
+          "deDanos": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
