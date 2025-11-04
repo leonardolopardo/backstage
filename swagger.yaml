@@ -1,104 +1,736 @@
 openapi: 3.0.0
 info:
-  title: Servicios Home Allianz Network - Common Components
+  title: Servicios Home Allianz Network - Menu Controller
   version: 1.0.0
   description: |
-    Shared components for the Servicios Home Allianz Network API.
+    API documentation for Menu Controller endpoints.
     
-    This file contains common schemas, security definitions, and server configurations
-    used across all controller-specific OpenAPI documentation files.
+    This file documents 4 endpoints from the ApiMenuController.
     
-    **Architecture**: Database-First with Oracle JPublisher
-    - Business logic resides in Oracle stored procedures
-    - DAO classes auto-generated from Oracle object types
-    - Custom Jackson serialization handles JSON ↔ Oracle type conversion
+    **Common Components**: For shared schemas and security configuration, see `openapi-common.yaml`
+    
+    ## Menu Management
+    
+    This controller manages the application menu structure and user favorite menus. It provides functionality for:
+    - Retrieving hierarchical menu structure for authenticated users
+    - Managing user favorite menus (add, retrieve, delete)
+    - Menu actions configuration (open windows, routes, frames)
 
+# Reference common file (for documentation purposes)
+x-common-spec: openapi-common.yaml
+
+# Use same servers as common file
 servers:
   - url: https://api.allianz.com.ar/v1
     description: Production
-  - url: https://api-qa.allianz.com.ar/v1
-    description: QA Environment
-  - url: https://api-dev.allianz.com.ar/v1
-    description: Development
 
-security:
-  - oauth2: []
-
+# Use same security schemes as common file
 components:
   securitySchemes:
     oauth2:
       type: oauth2
-      description: |
-        OAuth2 authentication via Kong API Gateway.
-        All endpoints (except /health) require a valid Bearer token.
+      description: OAuth2 authentication via Kong API Gateway
       flows:
         clientCredentials:
           tokenUrl: http://testauth.allianz.com.ar/token
-          scopes: {}
+          scopes:
+            ROLE_ADMIN: Administrator access
+            ROLE_USER: Regular user access
 
-  schemas:
-    # ========================================
-    # Standard Header (used in all requests)
-    # ========================================
-    TyHeader:
-      type: object
-      required:
-        - uuid
-        - userName
-        - userAuthProvider
-        - applicationId
-      properties:
-        uuid:
-          type: string
-          description: Unique transaction identifier (UUID format)
-          example: "550e8400-e29b-41d4-a716-446655440000"
-        userName:
-          type: string
-          description: Authenticated user name (from OAuth token)
-          example: "john.doe"
-        userAuthProvider:
-          type: number
-          description: OAuth provider ID (1 = default provider)
-          example: 1
-        applicationId:
-          type: number
-          description: Application ID (100 = Home Portal)
-          example: 100
+# Default security for this controller - all endpoints require authentication
+security:
+  - oauth2: []
 
-    # ========================================
-    # Standard Response (used in all responses)
-    # ========================================
-    TyResponse:
-      type: object
-      properties:
-        responseCode:
-          type: number
-          description: Response status code (matches HTTP status or custom business code)
-          example: 200
-        responseId:
-          type: string
-          nullable: true
-          description: Optional response identifier
-          example: null
-        description:
-          type: string
-          nullable: true
-          description: Response message (null on success, error message on failure)
-          example: null
-
-    # ========================================
-    # Error Response Structure
-    # ========================================
-    ErrorResponse:
-      type: object
+paths:
+  /user/menu:
+    get:
+      summary: Get User Menu Structure
       description: |
-        Standard error response structure.
-        Note: The actual response will be wrapped in an array with capitalized root key.
+        Retrieves the hierarchical menu structure for the authenticated user.
+        Returns a complete menu tree including nested menus, icons, URLs, and action configurations.
+        
+        **Database Procedure**:
+        - Schema: `API_CORE`
+        - Package: `API_MENU_PKG`
+        - Procedure: `P_GET_MENU_USER`
+        
+        **Security**: 
+        - Authentication: Required (OAuth2)
+        - Authorization: Any authenticated user
+        
+        **Business Logic**:
+        - Returns menu items hierarchically organized by levels
+        - Each menu may have associated actions (open route, open window, or 2-frame view)
+        - Menu visibility is filtered based on user permissions
+        - Includes menu order, icons, and parent-child relationships
+      tags:
+        - Menu Management
+      security:
+        - oauth2: []
+      parameters:
+        - name: codUbicacion
+          in: query
+          required: false
+          description: Menu location code to filter menus by location
+          schema:
+            type: string
+          example: "HOME"
+      responses:
+        '200':
+          description: Success - Menu structure retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MenuOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyMenuOut'
+              example:
+                MenuOut:
+                  - response:
+                      responseCode: 200
+                      responseId: null
+                      description: null
+                    menus:
+                      - idMenu: 1
+                        descNombreMenu: "Dashboard"
+                        descArchivoIcono: "dashboard.svg"
+                        idMenuPadre: null
+                        codUbicacion: "HOME"
+                        nroOrden: 1
+                        nroNivel: 1
+                        indicHijo: "S"
+                        menuAccion:
+                          id: 101
+                          idMenu: 1
+                          codAccion: "OPENROUTE"
+                          showFrame: 0
+                          menuAccion2frames: null
+                          menuAccionOpenwindows: null
+                          menuAccionOpenroute:
+                            id: 201
+                            idMenuAccion: 101
+                            descUrlOpenroute: "/dashboard"
+                      - idMenu: 2
+                        descNombreMenu: "Policies"
+                        descArchivoIcono: "policy.svg"
+                        idMenuPadre: null
+                        codUbicacion: "HOME"
+                        nroOrden: 2
+                        nroNivel: 1
+                        indicHijo: "N"
+                        menuAccion:
+                          id: 102
+                          idMenu: 2
+                          codAccion: "OPENWINDOWS"
+                          showFrame: 1
+                          menuAccion2frames: null
+                          menuAccionOpenwindows:
+                            id: 301
+                            idMenuAccion: 102
+                            descNombreWindow: "Policies Window"
+                            descUrlOpenwindow: "/policies"
+                            descPreferencias: "width=1024,height=768"
+                          menuAccionOpenroute: null
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MenuOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyMenuOut'
+              example:
+                MenuOut:
+                  - response:
+                      responseCode: 400
+                      responseId: null
+                      description: "Error en request: Invalid location code"
+                    menus: []
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MenuOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyMenuOut'
+              example:
+                MenuOut:
+                  - response:
+                      responseCode: 500
+                      responseId: null
+                      description: "Error inesperado"
+                    menus: []
+
+  /user/menu/favoritos:
+    get:
+      summary: Get User Favorite Menus
+      description: |
+        Retrieves the list of menu items marked as favorites by the authenticated user.
+        Returns favorite menus with their action configurations.
+        
+        **Database Procedure**:
+        - Schema: `API_CORE`
+        - Package: `API_MENU_PKG`
+        - Procedure: `P_GET_MENU_USER_FAVORITO`
+        
+        **Security**: 
+        - Authentication: Required (OAuth2)
+        - Authorization: Any authenticated user
+        
+        **Business Logic**:
+        - Returns only menus marked as favorites by the current user
+        - Includes menu action configuration for each favorite
+        - Results are ordered by user-defined order (nroOrden)
+      tags:
+        - Menu Management
+        - Favorites
+      security:
+        - oauth2: []
+      responses:
+        '200':
+          description: Success - Favorite menus retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MenuUserFavoritoOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+              example:
+                MenuUserFavoritoOut:
+                  - response:
+                      responseCode: 200
+                      responseId: null
+                      description: null
+                    menuUsuariosFavoritos:
+                      - idFavorito: 1001
+                        idMenu: 1
+                        descNombreMenu: "Dashboard"
+                        nroOrden: 1
+                        menuAccion:
+                          id: 101
+                          idMenu: 1
+                          codAccion: "OPENROUTE"
+                          showFrame: 0
+                          menuAccion2frames: null
+                          menuAccionOpenwindows: null
+                          menuAccionOpenroute:
+                            id: 201
+                            idMenuAccion: 101
+                            descUrlOpenroute: "/dashboard"
+                      - idFavorito: 1002
+                        idMenu: 5
+                        descNombreMenu: "Reports"
+                        nroOrden: 2
+                        menuAccion:
+                          id: 105
+                          idMenu: 5
+                          codAccion: "OPENWINDOWS"
+                          showFrame: 1
+                          menuAccion2frames: null
+                          menuAccionOpenwindows:
+                            id: 305
+                            idMenuAccion: 105
+                            descNombreWindow: "Reports Window"
+                            descUrlOpenwindow: "/reports"
+                            descPreferencias: "width=1200,height=900"
+                          menuAccionOpenroute: null
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MenuUserFavoritoOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+              example:
+                MenuUserFavoritoOut:
+                  - response:
+                      responseCode: 400
+                      responseId: null
+                      description: "Error en request: SQL exception"
+                    menuUsuariosFavoritos: []
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MenuUserFavoritoOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+              example:
+                MenuUserFavoritoOut:
+                  - response:
+                      responseCode: 500
+                      responseId: null
+                      description: "Error inesperado"
+                    menuUsuariosFavoritos: []
+
+    put:
+      summary: Add Menu to Favorites
+      description: |
+        Adds a menu item to the authenticated user's favorites list.
+        If the menu is already in favorites, updates the order.
+        
+        **Database Procedure**:
+        - Schema: `API_CORE`
+        - Package: `API_MENU_PKG`
+        - Procedure: `P_PUT_MENU_USER_FAVORITO`
+        
+        **Security**: 
+        - Authentication: Required (OAuth2)
+        - Authorization: Any authenticated user
+        
+        **Business Logic**:
+        - Creates a new favorite entry for the user
+        - If menu already exists in favorites, updates the order
+        - Returns empty result on success
+      tags:
+        - Menu Management
+        - Favorites
+      security:
+        - oauth2: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                MenuUserFavoritoIn:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TyMenuUserFavoritoIn'
+            example:
+              MenuUserFavoritoIn:
+                - header:
+                    uuid: "550e8400-e29b-41d4-a716-446655440000"
+                    userName: "john.doe"
+                    userAuthProvider: 1
+                    applicationId: 100
+                  menuUserFavorito:
+                    idFavorito: null
+                    idMenu: 3
+                    descNombreMenu: "Claims"
+                    nroOrden: 3
+                    menuAccion: null
+      responses:
+        '200':
+          description: Success - Menu added to favorites
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MenuUserFavoritoOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+              example:
+                MenuUserFavoritoOut:
+                  - response:
+                      responseCode: 200
+                      responseId: null
+                      description: "Menu added to favorites successfully"
+                    menuUsuariosFavoritos: []
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MenuUserFavoritoOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+              example:
+                MenuUserFavoritoOut:
+                  - response:
+                      responseCode: 400
+                      responseId: null
+                      description: "Error en request: Menu ID is required"
+                    menuUsuariosFavoritos: []
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MenuUserFavoritoOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+              example:
+                MenuUserFavoritoOut:
+                  - response:
+                      responseCode: 500
+                      responseId: null
+                      description: "Error inesperado"
+                    menuUsuariosFavoritos: []
+
+    delete:
+      summary: Remove Menu from Favorites
+      description: |
+        Removes a menu item from the authenticated user's favorites list.
+        
+        **Database Procedure**:
+        - Schema: `API_CORE`
+        - Package: `API_MENU_PKG`
+        - Procedure: `P_DELETE_MENU_USER_FAVORITO`
+        
+        **Security**: 
+        - Authentication: Required (OAuth2)
+        - Authorization: Any authenticated user
+        
+        **Business Logic**:
+        - Removes the favorite entry for the specified menu and user
+        - If menu is not in favorites, operation succeeds silently
+        - Returns empty result on success
+      tags:
+        - Menu Management
+        - Favorites
+      security:
+        - oauth2: []
+      parameters:
+        - name: idFavorito
+          in: query
+          required: false
+          description: The favorite ID to delete (if known)
+          schema:
+            type: number
+          example: 1001
+        - name: idMenu
+          in: query
+          required: true
+          description: The menu ID to remove from favorites
+          schema:
+            type: number
+          example: 3
+      responses:
+        '200':
+          description: Success - Menu removed from favorites
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MenuUserFavoritoOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+              example:
+                MenuUserFavoritoOut:
+                  - response:
+                      responseCode: 200
+                      responseId: null
+                      description: "Menu removed from favorites successfully"
+                    menuUsuariosFavoritos: []
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MenuUserFavoritoOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+              example:
+                MenuUserFavoritoOut:
+                  - response:
+                      responseCode: 400
+                      responseId: null
+                      description: "Error en request: Menu ID is required"
+                    menuUsuariosFavoritos: []
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MenuUserFavoritoOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+              example:
+                MenuUserFavoritoOut:
+                  - response:
+                      responseCode: 500
+                      responseId: null
+                      description: "Error inesperado"
+                    menuUsuariosFavoritos: []
+
+components:
+  schemas:
+    # Input/Output schemas for Menu endpoints
+    
+    TyMenuOut:
+      type: object
+      description: Menu response object (inner structure)
       properties:
         response:
-          $ref: '#/components/schemas/TyResponse'
-      example:
+          $ref: '../openapi-common.yaml#/components/schemas/TyResponse'
+        menus:
+          type: array
+          nullable: true
+          description: Array of menu items in hierarchical structure
+          items:
+            $ref: '#/components/schemas/TyMenu'
+
+    TyMenuIn:
+      type: object
+      description: Menu request object (inner structure)
+      properties:
+        header:
+          $ref: '../openapi-common.yaml#/components/schemas/TyHeader'
+        codUbicacion:
+          type: string
+          nullable: true
+          description: Menu location code to filter results
+          example: "HOME"
+
+    TyMenu:
+      type: object
+      description: Menu item with hierarchy and action configuration
+      properties:
+        idMenu:
+          type: number
+          nullable: true
+          description: Unique menu identifier
+          example: 1
+        descNombreMenu:
+          type: string
+          nullable: true
+          description: Menu display name
+          example: "Dashboard"
+        descArchivoIcono:
+          type: string
+          nullable: true
+          description: Icon file path or name
+          example: "dashboard.svg"
+        idMenuPadre:
+          type: number
+          nullable: true
+          description: Parent menu ID for hierarchical structure (null for root menus)
+          example: null
+        codUbicacion:
+          type: string
+          nullable: true
+          description: Menu location code
+          example: "HOME"
+        nroOrden:
+          type: number
+          nullable: true
+          description: Display order within same level
+          example: 1
+        nroNivel:
+          type: number
+          nullable: true
+          description: Menu hierarchy level (1 = root, 2 = submenu, etc.)
+          example: 1
+        indicHijo:
+          type: string
+          nullable: true
+          description: Indicator if menu has children (S = Yes, N = No)
+          example: "S"
+        menuAccion:
+          nullable: true
+          description: Action configuration for this menu item
+          $ref: '#/components/schemas/TyMenuAccion'
+
+    TyMenuAccion:
+      type: object
+      description: Menu action configuration
+      properties:
+        id:
+          type: number
+          nullable: true
+          description: Action identifier
+          example: 101
+        idMenu:
+          type: number
+          nullable: true
+          description: Associated menu ID
+          example: 1
+        codAccion:
+          type: string
+          nullable: true
+          description: Action type code (OPENROUTE, OPENWINDOWS, 2FRAMES)
+          example: "OPENROUTE"
+        showFrame:
+          type: number
+          nullable: true
+          description: Frame display indicator (0 = no frame, 1 = with frame)
+          example: 0
+        menuAccion2frames:
+          nullable: true
+          description: Configuration for 2-frame action (used when codAccion = 2FRAMES)
+          $ref: '#/components/schemas/TyMenuAccion2frames'
+        menuAccionOpenwindows:
+          nullable: true
+          description: Configuration for open window action (used when codAccion = OPENWINDOWS)
+          $ref: '#/components/schemas/TyMenuAccionOpenwindows'
+        menuAccionOpenroute:
+          nullable: true
+          description: Configuration for open route action (used when codAccion = OPENROUTE)
+          $ref: '#/components/schemas/TyMenuAccionOpenroute'
+
+    TyMenuAccion2frames:
+      type: object
+      description: Configuration for 2-frame menu action
+      properties:
+        id:
+          type: number
+          nullable: true
+          description: Configuration identifier
+          example: 401
+        idMenuAccion:
+          type: number
+          nullable: true
+          description: Parent menu action ID
+          example: 104
+        descUrlFrame1:
+          type: string
+          nullable: true
+          description: URL for first frame
+          example: "/frame1/content"
+        descUrlFrame2:
+          type: string
+          nullable: true
+          description: URL for second frame
+          example: "/frame2/sidebar"
+
+    TyMenuAccionOpenwindows:
+      type: object
+      description: Configuration for open window menu action
+      properties:
+        id:
+          type: number
+          nullable: true
+          description: Configuration identifier
+          example: 301
+        idMenuAccion:
+          type: number
+          nullable: true
+          description: Parent menu action ID
+          example: 102
+        descNombreWindow:
+          type: string
+          nullable: true
+          description: Window name/title
+          example: "Policies Window"
+        descUrlOpenwindow:
+          type: string
+          nullable: true
+          description: URL to open in new window
+          example: "/policies"
+        descPreferencias:
+          type: string
+          nullable: true
+          description: Window preferences (size, position, etc.)
+          example: "width=1024,height=768,resizable=yes"
+
+    TyMenuAccionOpenroute:
+      type: object
+      description: Configuration for open route menu action
+      properties:
+        id:
+          type: number
+          nullable: true
+          description: Configuration identifier
+          example: 201
+        idMenuAccion:
+          type: number
+          nullable: true
+          description: Parent menu action ID
+          example: 101
+        descUrlOpenroute:
+          type: string
+          nullable: true
+          description: Route URL to navigate to
+          example: "/dashboard"
+
+    # Favorite menus schemas
+    
+    TyMenuUserFavoritoOut:
+      type: object
+      description: User favorite menus response object (inner structure)
+      properties:
         response:
-          responseCode: 400
-          responseId: null
-          description: "Error en request: Invalid parameters"
+          $ref: '../openapi-common.yaml#/components/schemas/TyResponse'
+        menuUsuariosFavoritos:
+          type: array
+          nullable: true
+          description: Array of user's favorite menu items
+          items:
+            $ref: '#/components/schemas/TyMenuUserFavorito'
+
+    TyMenuUserFavoritoIn:
+      type: object
+      description: User favorite menu request object (inner structure)
+      properties:
+        header:
+          $ref: '../openapi-common.yaml#/components/schemas/TyHeader'
+        menuUserFavorito:
+          nullable: true
+          description: Favorite menu data
+          $ref: '#/components/schemas/TyMenuUserFavorito'
+
+    TyMenuUserFavorito:
+      type: object
+      description: User favorite menu item
+      properties:
+        idFavorito:
+          type: number
+          nullable: true
+          description: Unique favorite identifier (auto-generated)
+          example: 1001
+        idMenu:
+          type: number
+          nullable: true
+          description: Referenced menu ID
+          example: 1
+        descNombreMenu:
+          type: string
+          nullable: true
+          description: Menu display name (for reference)
+          example: "Dashboard"
+        nroOrden:
+          type: number
+          nullable: true
+          description: Display order in favorites list
+          example: 1
+        menuAccion:
+          nullable: true
+          description: Action configuration for this menu item
+          $ref: '#/components/schemas/TyMenuAccion'
