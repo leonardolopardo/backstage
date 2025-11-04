@@ -1,20 +1,13 @@
 openapi: 3.0.0
 info:
-  title: Servicios Home Allianz Network - Menu Controller
+  title: Servicios Home Allianz Network - News and Banners
   version: 1.0.0
   description: |
-    API documentation for Menu Controller endpoints.
+    API documentation for ApiNovedadesController endpoints.
     
-    This file documents 4 endpoints from the ApiMenuController.
+    This file documents 3 endpoints from the ApiNovedadesController.
     
     **Common Components**: For shared schemas and security configuration, see `openapi-common.yaml`
-    
-    ## Menu Management
-    
-    This controller manages the application menu structure and user favorite menus. It provides functionality for:
-    - Retrieving hierarchical menu structure for authenticated users
-    - Managing user favorite menus (add, retrieve, delete)
-    - Menu actions configuration (open windows, routes, frames)
 
 # Reference common file (for documentation purposes)
 x-common-spec: openapi-common.yaml
@@ -23,6 +16,8 @@ x-common-spec: openapi-common.yaml
 servers:
   - url: https://api.allianz.com.ar/v1
     description: Production
+  - url: http://localhost:8080/v1
+    description: Local Development
 
 # Use same security schemes as common file
 components:
@@ -33,283 +28,173 @@ components:
       flows:
         clientCredentials:
           tokenUrl: http://testauth.allianz.com.ar/token
-          scopes:
-            ROLE_ADMIN: Administrator access
-            ROLE_USER: Regular user access
+          scopes: {}
 
-# Default security for this controller - all endpoints require authentication
+# Default security for this controller
 security:
   - oauth2: []
 
+tags:
+  - name: News and Banners
+    description: Manages news articles and promotional banners for the home portal
+
 paths:
-  /user/menu:
+  /novedades:
     get:
-      summary: Get User Menu Structure
+      summary: Get News Articles
       description: |
-        Retrieves the hierarchical menu structure for the authenticated user.
-        Returns a complete menu tree including nested menus, icons, URLs, and action configurations.
+        Retrieves the list of news articles (novedades) for the authenticated user.
+        News articles provide information, updates, and announcements for portal users.
         
         **Database Procedure**:
-        - Schema: `API_CORE`
-        - Package: `API_MENU_PKG`
-        - Procedure: `P_GET_MENU_USER`
+        - Schema: `COMERCIAL`
+        - Package: `API_NOVEDADES`
+        - Procedure: `P_GET_NOVEDADES`
         
         **Security**: 
         - Authentication: Required (OAuth2)
         - Authorization: Any authenticated user
         
-        **Business Logic**:
-        - Returns menu items hierarchically organized by levels
-        - Each menu may have associated actions (open route, open window, or 2-frame view)
-        - Menu visibility is filtered based on user permissions
-        - Includes menu order, icons, and parent-child relationships
+        **Use Cases**:
+        - Display news feed on home portal
+        - Show recent updates and announcements
+        - Provide informational content to users
+        
+        **Query Parameters**:
+        The endpoint accepts query parameters that are deserialized into TyNovedadIn.
+        Common parameters may include filters for news type, date range, or read status.
+        
+      operationId: getNovedades
       tags:
-        - Menu Management
+        - News and Banners
       security:
         - oauth2: []
       parameters:
-        - name: codUbicacion
+        - name: codNovedad
           in: query
+          description: News article code (filter by specific news)
+          schema:
+            type: number
           required: false
-          description: Menu location code to filter menus by location
+        - name: tipoNovedad
+          in: query
+          description: Type of news article (filter by type)
           schema:
             type: string
-          example: "HOME"
+          required: false
       responses:
         '200':
-          description: Success - Menu structure retrieved
+          description: News articles retrieved successfully
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  MenuOut:
+                  NovedadOut:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TyMenuOut'
+                      $ref: '#/components/schemas/TyNovedadOut'
               example:
-                MenuOut:
+                NovedadOut:
                   - response:
                       responseCode: 200
                       responseId: null
                       description: null
-                    menus:
-                      - idMenu: 1
-                        descNombreMenu: "Dashboard"
-                        descArchivoIcono: "dashboard.svg"
-                        idMenuPadre: null
-                        codUbicacion: "HOME"
-                        nroOrden: 1
-                        nroNivel: 1
-                        indicHijo: "S"
-                        menuAccion:
-                          id: 101
-                          idMenu: 1
-                          codAccion: "OPENROUTE"
-                          showFrame: 0
-                          menuAccion2frames: null
-                          menuAccionOpenwindows: null
-                          menuAccionOpenroute:
-                            id: 201
-                            idMenuAccion: 101
-                            descUrlOpenroute: "/dashboard"
-                      - idMenu: 2
-                        descNombreMenu: "Policies"
-                        descArchivoIcono: "policy.svg"
-                        idMenuPadre: null
-                        codUbicacion: "HOME"
-                        nroOrden: 2
-                        nroNivel: 1
-                        indicHijo: "N"
-                        menuAccion:
-                          id: 102
-                          idMenu: 2
-                          codAccion: "OPENWINDOWS"
-                          showFrame: 1
-                          menuAccion2frames: null
-                          menuAccionOpenwindows:
-                            id: 301
-                            idMenuAccion: 102
-                            descNombreWindow: "Policies Window"
-                            descUrlOpenwindow: "/policies"
-                            descPreferencias: "width=1024,height=768"
-                          menuAccionOpenroute: null
+                    novedades:
+                      - codNovedad: 1001
+                        tituloNovedad: "Nueva Funcionalidad Disponible"
+                        resumenNovedad: "Ahora puedes gestionar tus pólizas más fácilmente"
+                        textoNovedad: "Hemos lanzado una nueva funcionalidad que te permite..."
+                        textoNovedad1: "Características principales:"
+                        textoNovedad2: "- Visualización mejorada\n- Mayor velocidad\n- Nuevas opciones"
+                        fechaNovedad: "2025-01-15 10:30:00"
+                        estadoNovedad: "ACTIVE"
+                        tipoNovedad: "FEATURE"
+                        usuarioNovedad: "admin"
+                        link: "https://portal.allianz.com.ar/features/new-policy-management"
+                        mcaLeida: "N"
+                      - codNovedad: 1002
+                        tituloNovedad: "Mantenimiento Programado"
+                        resumenNovedad: "El portal estará en mantenimiento este fin de semana"
+                        textoNovedad: "Informamos que realizaremos mantenimiento..."
+                        textoNovedad1: "Fecha: Sábado 20 de enero"
+                        textoNovedad2: "Horario: 02:00 - 06:00 AM"
+                        fechaNovedad: "2025-01-10 15:45:00"
+                        estadoNovedad: "ACTIVE"
+                        tipoNovedad: "ANNOUNCEMENT"
+                        usuarioNovedad: "system"
+                        link: null
+                        mcaLeida: "S"
         '400':
-          description: Bad Request
+          description: Bad Request - Invalid parameters or SQL exception
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  MenuOut:
+                  NovedadOut:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TyMenuOut'
+                      $ref: '#/components/schemas/TyNovedadOut'
               example:
-                MenuOut:
+                NovedadOut:
                   - response:
                       responseCode: 400
                       responseId: null
-                      description: "Error en request: Invalid location code"
-                    menus: []
+                      description: "Error en request: Invalid filter parameters"
+                    novedades: []
         '401':
           description: Unauthorized - Missing or invalid authentication token
-        '500':
-          description: Internal Server Error
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  MenuOut:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+        '500':
+          description: Internal Server Error - Unexpected error occurred
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  NovedadOut:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TyMenuOut'
+                      $ref: '#/components/schemas/TyNovedadOut'
               example:
-                MenuOut:
+                NovedadOut:
                   - response:
                       responseCode: 500
                       responseId: null
                       description: "Error inesperado"
-                    menus: []
-
-  /user/menu/favoritos:
-    get:
-      summary: Get User Favorite Menus
-      description: |
-        Retrieves the list of menu items marked as favorites by the authenticated user.
-        Returns favorite menus with their action configurations.
-        
-        **Database Procedure**:
-        - Schema: `API_CORE`
-        - Package: `API_MENU_PKG`
-        - Procedure: `P_GET_MENU_USER_FAVORITO`
-        
-        **Security**: 
-        - Authentication: Required (OAuth2)
-        - Authorization: Any authenticated user
-        
-        **Business Logic**:
-        - Returns only menus marked as favorites by the current user
-        - Includes menu action configuration for each favorite
-        - Results are ordered by user-defined order (nroOrden)
-      tags:
-        - Menu Management
-        - Favorites
-      security:
-        - oauth2: []
-      responses:
-        '200':
-          description: Success - Favorite menus retrieved
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  MenuUserFavoritoOut:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
-              example:
-                MenuUserFavoritoOut:
-                  - response:
-                      responseCode: 200
-                      responseId: null
-                      description: null
-                    menuUsuariosFavoritos:
-                      - idFavorito: 1001
-                        idMenu: 1
-                        descNombreMenu: "Dashboard"
-                        nroOrden: 1
-                        menuAccion:
-                          id: 101
-                          idMenu: 1
-                          codAccion: "OPENROUTE"
-                          showFrame: 0
-                          menuAccion2frames: null
-                          menuAccionOpenwindows: null
-                          menuAccionOpenroute:
-                            id: 201
-                            idMenuAccion: 101
-                            descUrlOpenroute: "/dashboard"
-                      - idFavorito: 1002
-                        idMenu: 5
-                        descNombreMenu: "Reports"
-                        nroOrden: 2
-                        menuAccion:
-                          id: 105
-                          idMenu: 5
-                          codAccion: "OPENWINDOWS"
-                          showFrame: 1
-                          menuAccion2frames: null
-                          menuAccionOpenwindows:
-                            id: 305
-                            idMenuAccion: 105
-                            descNombreWindow: "Reports Window"
-                            descUrlOpenwindow: "/reports"
-                            descPreferencias: "width=1200,height=900"
-                          menuAccionOpenroute: null
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  MenuUserFavoritoOut:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
-              example:
-                MenuUserFavoritoOut:
-                  - response:
-                      responseCode: 400
-                      responseId: null
-                      description: "Error en request: SQL exception"
-                    menuUsuariosFavoritos: []
-        '401':
-          description: Unauthorized - Missing or invalid authentication token
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  MenuUserFavoritoOut:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
-              example:
-                MenuUserFavoritoOut:
-                  - response:
-                      responseCode: 500
-                      responseId: null
-                      description: "Error inesperado"
-                    menuUsuariosFavoritos: []
-
+                    novedades: []
+    
     put:
-      summary: Add Menu to Favorites
+      summary: Mark News as Read
       description: |
-        Adds a menu item to the authenticated user's favorites list.
-        If the menu is already in favorites, updates the order.
+        Marks a news article as read for the authenticated user.
+        This endpoint updates the read status (mcaLeida) of a specific news article.
         
         **Database Procedure**:
-        - Schema: `API_CORE`
-        - Package: `API_MENU_PKG`
-        - Procedure: `P_PUT_MENU_USER_FAVORITO`
+        - Schema: `COMERCIAL`
+        - Package: `API_NOVEDADES`
+        - Procedure: `P_PUT_NOVEDADES`
         
         **Security**: 
         - Authentication: Required (OAuth2)
         - Authorization: Any authenticated user
         
-        **Business Logic**:
-        - Creates a new favorite entry for the user
-        - If menu already exists in favorites, updates the order
-        - Returns empty result on success
+        **Use Cases**:
+        - Mark news as read when user views it
+        - Track which news articles the user has seen
+        - Update user's news feed read status
+        
+      operationId: putNovedades
       tags:
-        - Menu Management
-        - Favorites
+        - News and Banners
       security:
         - oauth2: []
       requestBody:
@@ -319,418 +204,448 @@ paths:
             schema:
               type: object
               properties:
-                MenuUserFavoritoIn:
+                NovedadIn:
                   type: array
                   items:
-                    $ref: '#/components/schemas/TyMenuUserFavoritoIn'
+                    $ref: '#/components/schemas/TyNovedadIn'
             example:
-              MenuUserFavoritoIn:
+              NovedadIn:
                 - header:
                     uuid: "550e8400-e29b-41d4-a716-446655440000"
                     userName: "john.doe"
                     userAuthProvider: 1
                     applicationId: 100
-                  menuUserFavorito:
-                    idFavorito: null
-                    idMenu: 3
-                    descNombreMenu: "Claims"
-                    nroOrden: 3
-                    menuAccion: null
+                  novedad:
+                    codNovedad: 1001
+                    mcaLeida: "S"
       responses:
         '200':
-          description: Success - Menu added to favorites
+          description: News read status updated successfully
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  MenuUserFavoritoOut:
+                  RespuestaOut:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+                      $ref: '#/components/schemas/TyRespuestaOut'
               example:
-                MenuUserFavoritoOut:
+                RespuestaOut:
                   - response:
                       responseCode: 200
                       responseId: null
-                      description: "Menu added to favorites successfully"
-                    menuUsuariosFavoritos: []
+                      description: "News marked as read successfully"
         '400':
-          description: Bad Request
+          description: Bad Request - Invalid parameters or SQL exception
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  MenuUserFavoritoOut:
+                  RespuestaOut:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+                      $ref: '#/components/schemas/TyRespuestaOut'
               example:
-                MenuUserFavoritoOut:
+                RespuestaOut:
                   - response:
                       responseCode: 400
                       responseId: null
-                      description: "Error en request: Menu ID is required"
-                    menuUsuariosFavoritos: []
+                      description: "Error en request: Invalid news code"
         '401':
           description: Unauthorized - Missing or invalid authentication token
-        '500':
-          description: Internal Server Error
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  MenuUserFavoritoOut:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+        '500':
+          description: Internal Server Error - Unexpected error occurred
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  RespuestaOut:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+                      $ref: '#/components/schemas/TyRespuestaOut'
               example:
-                MenuUserFavoritoOut:
+                RespuestaOut:
                   - response:
                       responseCode: 500
                       responseId: null
                       description: "Error inesperado"
-                    menuUsuariosFavoritos: []
 
-    delete:
-      summary: Remove Menu from Favorites
+  /banners:
+    get:
+      summary: Get Promotional Banners
       description: |
-        Removes a menu item from the authenticated user's favorites list.
+        Retrieves the list of promotional banners to display on the home portal.
+        Banners are used for marketing, announcements, and promotional content.
         
         **Database Procedure**:
-        - Schema: `API_CORE`
-        - Package: `API_MENU_PKG`
-        - Procedure: `P_DELETE_MENU_USER_FAVORITO`
+        - Schema: `COMERCIAL`
+        - Package: `API_NOVEDADES`
+        - Procedure: `P_GET_BANNERS`
         
         **Security**: 
         - Authentication: Required (OAuth2)
         - Authorization: Any authenticated user
         
-        **Business Logic**:
-        - Removes the favorite entry for the specified menu and user
-        - If menu is not in favorites, operation succeeds silently
-        - Returns empty result on success
+        **Use Cases**:
+        - Display promotional banners on home page
+        - Show marketing campaigns
+        - Highlight important announcements visually
+        - Provide clickable links to specific content or offers
+        
+        **Query Parameters**:
+        The endpoint accepts query parameters that are deserialized into TyBannerIn.
+        Common parameters may include filters for banner position, active status, or type.
+        
+      operationId: getBanners
       tags:
-        - Menu Management
-        - Favorites
+        - News and Banners
       security:
         - oauth2: []
       parameters:
-        - name: idFavorito
+        - name: nroPos
           in: query
+          description: Banner position number (filter by position)
+          schema:
+            type: string
           required: false
-          description: The favorite ID to delete (if known)
-          schema:
-            type: number
-          example: 1001
-        - name: idMenu
-          in: query
-          required: true
-          description: The menu ID to remove from favorites
-          schema:
-            type: number
-          example: 3
       responses:
         '200':
-          description: Success - Menu removed from favorites
+          description: Banners retrieved successfully
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  MenuUserFavoritoOut:
+                  BannerOut:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+                      $ref: '#/components/schemas/TyBannerOut'
               example:
-                MenuUserFavoritoOut:
+                BannerOut:
                   - response:
                       responseCode: 200
                       responseId: null
-                      description: "Menu removed from favorites successfully"
-                    menuUsuariosFavoritos: []
+                      description: null
+                    banners:
+                      - idFoto: 5001
+                        nroPos: "1"
+                        link: "https://portal.allianz.com.ar/promo/summer-2025"
+                        imgUrl: "https://cdn.allianz.com.ar/banners/summer-promo.jpg"
+                        mimeType: "image/jpeg"
+                        docSize: 152400
+                      - idFoto: 5002
+                        nroPos: "2"
+                        link: "https://portal.allianz.com.ar/products/life-insurance"
+                        imgUrl: "https://cdn.allianz.com.ar/banners/life-insurance-banner.png"
+                        mimeType: "image/png"
+                        docSize: 98600
+                      - idFoto: 5003
+                        nroPos: "3"
+                        link: null
+                        imgUrl: "https://cdn.allianz.com.ar/banners/announcement.jpg"
+                        mimeType: "image/jpeg"
+                        docSize: 187200
         '400':
-          description: Bad Request
+          description: Bad Request - Invalid parameters or SQL exception
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  MenuUserFavoritoOut:
+                  BannerOut:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+                      $ref: '#/components/schemas/TyBannerOut'
               example:
-                MenuUserFavoritoOut:
+                BannerOut:
                   - response:
                       responseCode: 400
                       responseId: null
-                      description: "Error en request: Menu ID is required"
-                    menuUsuariosFavoritos: []
+                      description: "Error en request: Invalid position parameter"
+                    banners: []
         '401':
           description: Unauthorized - Missing or invalid authentication token
-        '500':
-          description: Internal Server Error
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  MenuUserFavoritoOut:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+        '500':
+          description: Internal Server Error - Unexpected error occurred
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  BannerOut:
                     type: array
                     items:
-                      $ref: '#/components/schemas/TyMenuUserFavoritoOut'
+                      $ref: '#/components/schemas/TyBannerOut'
               example:
-                MenuUserFavoritoOut:
+                BannerOut:
                   - response:
                       responseCode: 500
                       responseId: null
                       description: "Error inesperado"
-                    menuUsuariosFavoritos: []
+                    banners: []
 
 components:
   schemas:
-    # Input/Output schemas for Menu endpoints
+    # ============================================
+    # INPUT TYPES
+    # ============================================
     
-    TyMenuOut:
+    # News Input Type (Inner structure - inside root array)
+    TyNovedadIn:
       type: object
-      description: Menu response object (inner structure)
-      properties:
-        response:
-          $ref: '../openapi-common.yaml#/components/schemas/TyResponse'
-        menus:
-          type: array
-          nullable: true
-          description: Array of menu items in hierarchical structure
-          items:
-            $ref: '#/components/schemas/TyMenu'
-
-    TyMenuIn:
-      type: object
-      description: Menu request object (inner structure)
+      description: News input object (inner structure, not root)
+      required:
+        - header
       properties:
         header:
-          $ref: '../openapi-common.yaml#/components/schemas/TyHeader'
-        codUbicacion:
-          type: string
+          $ref: '#/components/schemas/TyHeader'
+        novedad:
+          $ref: '#/components/schemas/TyNovedad'
           nullable: true
-          description: Menu location code to filter results
-          example: "HOME"
-
-    TyMenu:
-      type: object
-      description: Menu item with hierarchy and action configuration
-      properties:
-        idMenu:
-          type: number
-          nullable: true
-          description: Unique menu identifier
-          example: 1
-        descNombreMenu:
-          type: string
-          nullable: true
-          description: Menu display name
-          example: "Dashboard"
-        descArchivoIcono:
-          type: string
-          nullable: true
-          description: Icon file path or name
-          example: "dashboard.svg"
-        idMenuPadre:
-          type: number
-          nullable: true
-          description: Parent menu ID for hierarchical structure (null for root menus)
-          example: null
-        codUbicacion:
-          type: string
-          nullable: true
-          description: Menu location code
-          example: "HOME"
-        nroOrden:
-          type: number
-          nullable: true
-          description: Display order within same level
-          example: 1
-        nroNivel:
-          type: number
-          nullable: true
-          description: Menu hierarchy level (1 = root, 2 = submenu, etc.)
-          example: 1
-        indicHijo:
-          type: string
-          nullable: true
-          description: Indicator if menu has children (S = Yes, N = No)
-          example: "S"
-        menuAccion:
-          nullable: true
-          description: Action configuration for this menu item
-          $ref: '#/components/schemas/TyMenuAccion'
-
-    TyMenuAccion:
-      type: object
-      description: Menu action configuration
-      properties:
-        id:
-          type: number
-          nullable: true
-          description: Action identifier
-          example: 101
-        idMenu:
-          type: number
-          nullable: true
-          description: Associated menu ID
-          example: 1
-        codAccion:
-          type: string
-          nullable: true
-          description: Action type code (OPENROUTE, OPENWINDOWS, 2FRAMES)
-          example: "OPENROUTE"
-        showFrame:
-          type: number
-          nullable: true
-          description: Frame display indicator (0 = no frame, 1 = with frame)
-          example: 0
-        menuAccion2frames:
-          nullable: true
-          description: Configuration for 2-frame action (used when codAccion = 2FRAMES)
-          $ref: '#/components/schemas/TyMenuAccion2frames'
-        menuAccionOpenwindows:
-          nullable: true
-          description: Configuration for open window action (used when codAccion = OPENWINDOWS)
-          $ref: '#/components/schemas/TyMenuAccionOpenwindows'
-        menuAccionOpenroute:
-          nullable: true
-          description: Configuration for open route action (used when codAccion = OPENROUTE)
-          $ref: '#/components/schemas/TyMenuAccionOpenroute'
-
-    TyMenuAccion2frames:
-      type: object
-      description: Configuration for 2-frame menu action
-      properties:
-        id:
-          type: number
-          nullable: true
-          description: Configuration identifier
-          example: 401
-        idMenuAccion:
-          type: number
-          nullable: true
-          description: Parent menu action ID
-          example: 104
-        descUrlFrame1:
-          type: string
-          nullable: true
-          description: URL for first frame
-          example: "/frame1/content"
-        descUrlFrame2:
-          type: string
-          nullable: true
-          description: URL for second frame
-          example: "/frame2/sidebar"
-
-    TyMenuAccionOpenwindows:
-      type: object
-      description: Configuration for open window menu action
-      properties:
-        id:
-          type: number
-          nullable: true
-          description: Configuration identifier
-          example: 301
-        idMenuAccion:
-          type: number
-          nullable: true
-          description: Parent menu action ID
-          example: 102
-        descNombreWindow:
-          type: string
-          nullable: true
-          description: Window name/title
-          example: "Policies Window"
-        descUrlOpenwindow:
-          type: string
-          nullable: true
-          description: URL to open in new window
-          example: "/policies"
-        descPreferencias:
-          type: string
-          nullable: true
-          description: Window preferences (size, position, etc.)
-          example: "width=1024,height=768,resizable=yes"
-
-    TyMenuAccionOpenroute:
-      type: object
-      description: Configuration for open route menu action
-      properties:
-        id:
-          type: number
-          nullable: true
-          description: Configuration identifier
-          example: 201
-        idMenuAccion:
-          type: number
-          nullable: true
-          description: Parent menu action ID
-          example: 101
-        descUrlOpenroute:
-          type: string
-          nullable: true
-          description: Route URL to navigate to
-          example: "/dashboard"
-
-    # Favorite menus schemas
+          description: News article data to update
     
-    TyMenuUserFavoritoOut:
+    # Banner Input Type (Inner structure - inside root array)
+    TyBannerIn:
       type: object
-      description: User favorite menus response object (inner structure)
-      properties:
-        response:
-          $ref: '../openapi-common.yaml#/components/schemas/TyResponse'
-        menuUsuariosFavoritos:
-          type: array
-          nullable: true
-          description: Array of user's favorite menu items
-          items:
-            $ref: '#/components/schemas/TyMenuUserFavorito'
-
-    TyMenuUserFavoritoIn:
-      type: object
-      description: User favorite menu request object (inner structure)
+      description: Banner input object (inner structure, not root)
+      required:
+        - header
       properties:
         header:
-          $ref: '../openapi-common.yaml#/components/schemas/TyHeader'
-        menuUserFavorito:
+          $ref: '#/components/schemas/TyHeader'
+        banner:
+          $ref: '#/components/schemas/TyBanner'
           nullable: true
-          description: Favorite menu data
-          $ref: '#/components/schemas/TyMenuUserFavorito'
-
-    TyMenuUserFavorito:
+          description: Banner filter data
+    
+    # ============================================
+    # OUTPUT TYPES
+    # ============================================
+    
+    # News Output Type (Inner structure - inside root array)
+    TyNovedadOut:
       type: object
-      description: User favorite menu item
+      description: News response object (inner structure, not root)
+      required:
+        - response
       properties:
-        idFavorito:
-          type: number
+        response:
+          $ref: '#/components/schemas/TyResponse'
+        novedades:
+          type: array
           nullable: true
-          description: Unique favorite identifier (auto-generated)
+          description: List of news articles (null or empty on error)
+          items:
+            $ref: '#/components/schemas/TyNovedad'
+    
+    # Banner Output Type (Inner structure - inside root array)
+    TyBannerOut:
+      type: object
+      description: Banner response object (inner structure, not root)
+      required:
+        - response
+      properties:
+        response:
+          $ref: '#/components/schemas/TyResponse'
+        banners:
+          type: array
+          nullable: true
+          description: List of promotional banners (null or empty on error)
+          items:
+            $ref: '#/components/schemas/TyBanner'
+    
+    # Simple Response Output Type (for PUT operations)
+    TyRespuestaOut:
+      type: object
+      description: Simple response object (only contains response metadata)
+      required:
+        - response
+      properties:
+        response:
+          $ref: '#/components/schemas/TyResponse'
+    
+    # ============================================
+    # BUSINESS DATA OBJECTS
+    # ============================================
+    
+    # News Article Object
+    TyNovedad:
+      type: object
+      description: News article detailed information
+      properties:
+        codNovedad:
+          type: number
+          description: News article code/ID
           example: 1001
-        idMenu:
-          type: number
           nullable: true
-          description: Referenced menu ID
-          example: 1
-        descNombreMenu:
+        tituloNovedad:
           type: string
+          description: News article title
+          example: "Nueva Funcionalidad Disponible"
           nullable: true
-          description: Menu display name (for reference)
-          example: "Dashboard"
-        nroOrden:
+        resumenNovedad:
+          type: string
+          description: Brief summary of the news article
+          example: "Ahora puedes gestionar tus pólizas más fácilmente"
+          nullable: true
+        textoNovedad:
+          type: string
+          description: Main text content of the news article
+          example: "Hemos lanzado una nueva funcionalidad que te permite gestionar tus pólizas de manera más eficiente..."
+          nullable: true
+        textoNovedad1:
+          type: string
+          description: Additional text content section 1
+          example: "Características principales:"
+          nullable: true
+        textoNovedad2:
+          type: string
+          description: Additional text content section 2
+          example: "- Visualización mejorada\n- Mayor velocidad\n- Nuevas opciones"
+          nullable: true
+        fechaNovedad:
+          type: string
+          format: date-time
+          description: News article publication date and time
+          example: "2025-01-15 10:30:00"
+          nullable: true
+        estadoNovedad:
+          type: string
+          description: News article status (e.g., ACTIVE, INACTIVE)
+          example: "ACTIVE"
+          nullable: true
+        tipoNovedad:
+          type: string
+          description: Type of news article (e.g., FEATURE, ANNOUNCEMENT, ALERT)
+          example: "FEATURE"
+          nullable: true
+        usuarioNovedad:
+          type: string
+          description: User who created/published the news article
+          example: "admin"
+          nullable: true
+        link:
+          type: string
+          format: uri
+          description: Optional link for more information or related content
+          example: "https://portal.allianz.com.ar/features/new-policy-management"
+          nullable: true
+        mcaLeida:
+          type: string
+          description: Read status indicator (S = read, N = unread)
+          enum: ["S", "N"]
+          example: "N"
+          nullable: true
+    
+    # Banner Object
+    TyBanner:
+      type: object
+      description: Promotional banner information
+      properties:
+        idFoto:
           type: number
+          description: Banner image ID
+          example: 5001
           nullable: true
-          description: Display order in favorites list
+        nroPos:
+          type: string
+          description: Banner position number (display order)
+          example: "1"
+          nullable: true
+        link:
+          type: string
+          format: uri
+          description: Clickable link when banner is clicked (null if non-clickable)
+          example: "https://portal.allianz.com.ar/promo/summer-2025"
+          nullable: true
+        imgUrl:
+          type: string
+          format: uri
+          description: URL to the banner image
+          example: "https://cdn.allianz.com.ar/banners/summer-promo.jpg"
+          nullable: true
+        mimeType:
+          type: string
+          description: Image MIME type (e.g., image/jpeg, image/png)
+          example: "image/jpeg"
+          nullable: true
+        docSize:
+          type: number
+          description: Image file size in bytes
+          example: 152400
+          nullable: true
+    
+    # ============================================
+    # COMMON SCHEMAS (from openapi-common.yaml)
+    # ============================================
+    
+    # Standard Header (from common)
+    TyHeader:
+      type: object
+      description: Standard request header with authentication metadata
+      required:
+        - uuid
+        - userName
+        - userAuthProvider
+        - applicationId
+      properties:
+        uuid:
+          type: string
+          description: Unique transaction identifier (UUID format)
+          example: "550e8400-e29b-41d4-a716-446655440000"
+          nullable: true
+        userName:
+          type: string
+          description: Authenticated user name from OAuth token
+          example: "john.doe"
+          nullable: true
+        userAuthProvider:
+          type: number
+          description: OAuth provider ID (1 = default)
           example: 1
-        menuAccion:
           nullable: true
-          description: Action configuration for this menu item
-          $ref: '#/components/schemas/TyMenuAccion'
+        applicationId:
+          type: number
+          description: Application ID (100 = Home Portal)
+          example: 100
+          nullable: true
+    
+    # Standard Response (from common)
+    TyResponse:
+      type: object
+      description: Standard response metadata
+      properties:
+        responseCode:
+          type: integer
+          description: Response status code (HTTP status or custom business code)
+          example: 200
+          nullable: true
+        responseId:
+          type: string
+          description: Optional response identifier for tracking
+          example: null
+          nullable: true
+        description:
+          type: string
+          description: Response message (null on success, error message on failure)
+          example: null
+          nullable: true
