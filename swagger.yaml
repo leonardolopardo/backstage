@@ -1,374 +1,2626 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "title": "Events MS",
-    "description": "Events MS",
-    "version": "1.0"
-  },
-  "servers": [
-    {
-      "url": "http://localhost:9001",
-      "description": "Servidor local en puerto 9001"
-    }
-  ],
-  "tags": [
-    {
-      "name": "Events",
-      "description": "API para registrar eventos en el sistema"
-    },
-    {
-      "name": "Errors",
-      "description": "API para registrar errores en el sistema"
-    }
-  ],
-  "paths": {
-    "/events-ms/events": {
-      "post": {
-        "tags": ["Events"],
-        "summary": "Registrar un evento",
-        "description": "Crea un nuevo evento en el sistema y lo almacena en la base de datos.",
-        "operationId": "logEvent",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EventRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Evento registrado correctamente",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string",
-                  "example": {
-                    "message": "Created resource"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error interno del servidor",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Petición inválida",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/events-ms/errors": {
-      "post": {
-        "tags": ["Errors"],
-        "summary": "Registrar un error",
-        "description": "Crea un nuevo registro de error en el sistema y lo almacena en la base de datos.",
-        "operationId": "logError",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ErrorRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "500": {
-            "description": "Error interno del servidor",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Petición inválida",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          },
-          "201": {
-            "description": "Error registrado correctamente",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string",
-                  "example": {
-                    "message": "Created resource"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/events-ms/public/app/version": {
-      "get": {
-        "tags": ["application-controller"],
-        "operationId": "getVersion",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/events-ms/public/app/healthCheck": {
-      "get": {
-        "tags": ["application-controller"],
-        "operationId": "healthCheck",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "EventRequest": {
-        "type": "object",
-        "properties": {
-          "application": {
-            "type": "string",
-            "description": "Nombre de la aplicación que genera el evento",
-            "example": "mobile-app"
-          },
-          "applicationVersion": {
-            "type": "string",
-            "description": "Versión de la aplicación",
-            "example": "1.0.3"
-          },
-          "userId": {
-            "type": "string",
-            "description": "Identificador único del usuario asociado al evento",
-            "example": "user-123"
-          },
-          "sessionId": {
-            "type": "string",
-            "description": "Identificador de la sesión en curso",
-            "example": "session-abc-456"
-          },
-          "action": {
-            "type": "string",
-            "description": "Acción realizada por el usuario o sistema",
-            "example": "LOGIN"
-          },
-          "description": {
-            "type": "string",
-            "description": "Descripción adicional del evento",
-            "example": "Usuario inició sesión desde dispositivo Android"
-          },
-          "deviceInfo": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "description": "Información del dispositivo desde el que se ejecutó la acción",
-              "example": {
-                "os": "Android",
-                "version": "14",
-                "model": "Samsung S23"
-              }
-            },
-            "description": "Información del dispositivo desde el que se ejecutó la acción",
-            "example": {
-              "os": "Android",
-              "version": "14",
-              "model": "Samsung S23"
-            }
-          },
-          "metadata": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "description": "Metadatos adicionales relacionados con el evento",
-              "example": {
-                "location": "Buenos Aires",
-                "network": "WiFi"
-              }
-            },
-            "description": "Metadatos adicionales relacionados con el evento",
-            "example": {
-              "location": "Buenos Aires",
-              "network": "WiFi"
-            }
-          },
-          "httpLog": {
-            "$ref": "#/components/schemas/HttpLog"
-          }
-        },
-        "description": "Objeto que representa un evento a registrar en el sistema"
-      },
-      "HttpLog": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string",
-            "description": "URL de la petición realizada",
-            "example": "https://api.misitio.com/orders"
-          },
-          "queryParams": {
-            "type": "string",
-            "description": "Parámetros de la query enviados en la petición",
-            "example": "userId=123&status=active"
-          },
-          "requestBody": {
-            "type": "string",
-            "description": "Cuerpo de la petición enviada",
-            "example": "{\"productId\":\"A001\",\"quantity\":2}"
-          },
-          "responseBody": {
-            "type": "string",
-            "description": "Cuerpo de la respuesta recibida",
-            "example": "{\"orderId\":\"ORD-98765\",\"status\":\"CREATED\"}"
-          },
-          "statusCode": {
-            "type": "integer",
-            "description": "Código de estado HTTP recibido",
-            "format": "int32",
-            "example": 201
-          }
-        },
-        "description": "Detalle de la comunicación HTTP asociada a un evento o error"
-      },
-      "ErrorRequest": {
-        "type": "object",
-        "properties": {
-          "application": {
-            "type": "string",
-            "description": "Nombre de la aplicación que generó el error",
-            "example": "mobile-app"
-          },
-          "applicationVersion": {
-            "type": "string",
-            "description": "Versión de la aplicación",
-            "example": "1.0.3"
-          },
-          "userId": {
-            "type": "string",
-            "description": "Identificador único del usuario afectado por el error",
-            "example": "user-123"
-          },
-          "sessionId": {
-            "type": "string",
-            "description": "Identificador de la sesión en curso",
-            "example": "session-xyz-789"
-          },
-          "action": {
-            "type": "string",
-            "description": "Acción que estaba ejecutando el usuario al generarse el error",
-            "example": "CREATE_ORDER"
-          },
-          "errorMessage": {
-            "type": "string",
-            "description": "Mensaje de error generado por la aplicación o servicio",
-            "example": "NullPointerException en OrderService"
-          },
-          "statusCode": {
-            "type": "integer",
-            "description": "Código de estado asociado al error (HTTP o interno)",
-            "format": "int32",
-            "example": 500
-          },
-          "deviceInfo": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "description": "Información del dispositivo donde ocurrió el error",
-              "example": {
-                "os": "iOS",
-                "version": "17.2",
-                "model": "iPhone 14"
-              }
-            },
-            "description": "Información del dispositivo donde ocurrió el error",
-            "example": {
-              "os": "iOS",
-              "version": "17.2",
-              "model": "iPhone 14"
-            }
-          },
-          "metadata": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "description": "Metadatos adicionales relacionados con el error",
-              "example": {
-                "location": "Córdoba",
-                "network": "4G"
-              }
-            },
-            "description": "Metadatos adicionales relacionados con el error",
-            "example": {
-              "location": "Córdoba",
-              "network": "4G"
-            }
-          },
-          "httpLog": {
-            "$ref": "#/components/schemas/HttpLog"
-          }
-        },
-        "description": "Objeto que representa un error a registrar en el sistema"
-      }
-    }
-  }
+	"openapi": "3.0.1",
+	"info": {
+		"title": "MS Cobranzas API",
+		"version": "1.0.38-SNAPSHOT"
+	},
+	"servers": [
+		{
+			"url": "http://localhost:9001"
+		}
+	],
+	"tags": [
+		{
+			"name": "Mobbex Controller",
+			"description": "Endpoint para Mobbex"
+		}
+	],
+	"paths": {
+		"/cobranzas/transactions/debits-credits": {
+			"put": {
+				"tags": [
+					"DebitCreditTransactions Services"
+				],
+				"operationId": "update",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/DebitCreditTransactionsTO"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": [
+					"DebitCreditTransactions Services"
+				],
+				"operationId": "insert",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/DebitCreditTransactionsTO"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/rejection": {
+			"put": {
+				"tags": [
+					"Rejections Services"
+				],
+				"operationId": "update_1",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RejectionsTO"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": [
+					"Rejections Services"
+				],
+				"operationId": "insert_1",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RejectionsTO"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/public/update-token": {
+			"put": {
+				"tags": [
+					"public-controller"
+				],
+				"operationId": "update_2",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PaymentLinkRequestTO"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/mercadopago/update-token": {
+			"put": {
+				"tags": [
+					"mercado-pago-controller"
+				],
+				"operationId": "update_3",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PaymentLinkRequestTO"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/check-payment": {
+			"put": {
+				"tags": [
+					"CheckPaymentMethod Services"
+				],
+				"operationId": "update_4",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CheckPaymentMethodTO"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": [
+					"CheckPaymentMethod Services"
+				],
+				"operationId": "insert_2",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CheckPaymentMethodTO"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/calendar/event": {
+			"get": {
+				"tags": [
+					"calendar-event-controller"
+				],
+				"operationId": "getEvents",
+				"parameters": [
+					{
+						"name": "methodType",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "fromDate",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "toDate",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"tags": [
+					"calendar-event-controller"
+				],
+				"operationId": "updateEvent",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CalendarEventTO"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/public/mobbex/callbackjson": {
+			"post": {
+				"tags": [
+					"Mobbex Controller"
+				],
+				"operationId": "postMobbexCallBackResponse",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/MobexCallbackJsonTO"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"$ref": "#/components/schemas/ResponseTOString"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/mercadopago/payment-checkout": {
+			"post": {
+				"tags": [
+					"mercado-pago-controller"
+				],
+				"operationId": "paymentCheckout",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PaymentRequestTO"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/mercadopago/generate-token": {
+			"post": {
+				"tags": [
+					"mercado-pago-controller"
+				],
+				"operationId": "createPaymentLink",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PaymentLinkRequestTO"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/check-payment/link": {
+			"post": {
+				"tags": [
+					"CheckPaymentMethod Services"
+				],
+				"operationId": "checkPaymentLink",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CheckPaymentLinkRequestTO"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/utils/validations": {
+			"get": {
+				"tags": [
+					"utils-controller"
+				],
+				"operationId": "getValidations",
+				"parameters": [
+					{
+						"name": "vTO",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"$ref": "#/components/schemas/ValidationsRequestTO"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/utils/currencies": {
+			"get": {
+				"tags": [
+					"utils-controller"
+				],
+				"operationId": "getCurrencies",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/utils/cards-policies": {
+			"get": {
+				"tags": [
+					"utils-controller"
+				],
+				"operationId": "getCardsPolicies",
+				"parameters": [
+					{
+						"name": "cpTO",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"$ref": "#/components/schemas/CardsPoliciesRequestTO"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/transactions/debits-credits/types": {
+			"get": {
+				"tags": [
+					"DebitCreditTransactions Services"
+				],
+				"operationId": "getCardTypes",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/transactions/debits-credits/table": {
+			"get": {
+				"tags": [
+					"DebitCreditTransactions Services"
+				],
+				"summary": "Retrives a table with all the debitCreditTransactions.",
+				"operationId": "getTable",
+				"parameters": [
+					{
+						"name": "groupCode",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "organizationCode",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "producerCode",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "creditDebitId",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "cardCode",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "card",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "cardholderName",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "shipmentNumber",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "policyNumber",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "supplementNumber",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "insuredName",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "installmentNumber",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "amount",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "summaryAmount",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "exchangeDifferenceAmount",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "debitDate",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "shipmentStatus",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "currencyCode",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "remittance",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "shipmentDate",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "fromDate",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "toDate",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "minSummaryAmount",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "maxSummaryAmount",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "debitType",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					},
+					{
+						"name": "size",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					},
+					{
+						"name": "sortBy",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							},
+							"default": [
+								"debitDate"
+							]
+						}
+					},
+					{
+						"name": "isAscending",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "boolean",
+							"default": false
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Tabla con debitCreditTransactions",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/DebitCreditTransactionsTO"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/security/menu": {
+			"get": {
+				"tags": [
+					"Security services"
+				],
+				"summary": "Retrives security Menu depending on Auth and user Roles.",
+				"operationId": "getMenu",
+				"responses": {
+					"200": {
+						"description": "List of questions",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/rejection/table": {
+			"get": {
+				"tags": [
+					"Rejections Services"
+				],
+				"summary": "Retrives a table with all the Rejections.",
+				"operationId": "getTable_1",
+				"parameters": [
+					{
+						"name": "groupCode",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "organizationCode",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "producerCode",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "idRejections",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "cardCode",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "card",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "cardholderName",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "shipmentNumber",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "policyNumber",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "supplementNumber",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "insuredName",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "installmentNumber",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "amount",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "currencyCode",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "rejectionReason",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "financialCoverageDate",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "requiredAction",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "regularizationDate",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "sendDate",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "fromDate",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "toDate",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "rejectionType",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					},
+					{
+						"name": "size",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					},
+					{
+						"name": "sortBy",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							},
+							"default": [
+								"sendDate"
+							]
+						}
+					},
+					{
+						"name": "isAscending",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "boolean",
+							"default": false
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Tabla con Rejections",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/RejectionsTO"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/public/info-token": {
+			"get": {
+				"tags": [
+					"public-controller"
+				],
+				"operationId": "getPaymentByToken",
+				"parameters": [
+					{
+						"name": "token",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/public/app/version": {
+			"get": {
+				"tags": [
+					"application-controller"
+				],
+				"operationId": "getVersion",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/public/app/healthCheck": {
+			"get": {
+				"tags": [
+					"application-controller"
+				],
+				"operationId": "healthCheck",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/mobbex/get-nro-tarjeta": {
+			"get": {
+				"tags": [
+					"Mobbex Controller"
+				],
+				"operationId": "getMobbexCardNumber",
+				"parameters": [
+					{
+						"name": "codTarjeta",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "nroTarjeta",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"$ref": "#/components/schemas/ResponseTOString"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/mercadopago/info-token": {
+			"get": {
+				"tags": [
+					"mercado-pago-controller"
+				],
+				"operationId": "getPaymentByToken_1",
+				"parameters": [
+					{
+						"name": "token",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/mercadopago/customers/{customerId}/cards/{cardId}": {
+			"get": {
+				"tags": [
+					"mercado-pago-controller"
+				],
+				"operationId": "getCustomerCard",
+				"parameters": [
+					{
+						"name": "customerId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "cardId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/gop/producer": {
+			"get": {
+				"tags": [
+					"Gop Services"
+				],
+				"summary": "Retrives producers users depending on user Authentication GopLevel and GopCode.",
+				"operationId": "getGopProducer",
+				"parameters": [
+					{
+						"name": "actives",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Productor/es encontrado",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/GopTO"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/gop/organization": {
+			"get": {
+				"tags": [
+					"Gop Services"
+				],
+				"summary": "Retrives organization users depending on user Authentication GopLevel and GopCode.",
+				"operationId": "getGopOrganizations",
+				"parameters": [
+					{
+						"name": "actives",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Organizador/es encontrado",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/GopTO"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/gop/group": {
+			"get": {
+				"tags": [
+					"Gop Services"
+				],
+				"summary": "Get gop groups",
+				"operationId": "getGopGroups",
+				"parameters": [
+					{
+						"name": "actives",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Grupo/s encontrado",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/GopTO"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/check-payment/table": {
+			"get": {
+				"tags": [
+					"CheckPaymentMethod Services"
+				],
+				"summary": "Retrives a table with all the CheckPaymentMethod.",
+				"operationId": "getTable_2",
+				"parameters": [
+					{
+						"name": "producerCode",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "groupCode",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "organizationCode",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "policyNumber",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "methodType",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "paymentNumber",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "user",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "fromDate",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "toDate",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int64"
+						}
+					},
+					{
+						"name": "processNumber",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					},
+					{
+						"name": "size",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"format": "int32"
+						}
+					},
+					{
+						"name": "sortBy",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							},
+							"default": [
+								"createTimestamp"
+							]
+						}
+					},
+					{
+						"name": "isAscending",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "boolean",
+							"default": false
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Tabla con CheckPaymentMethod",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/CheckPaymentMethodTO"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cobranzas/check-payment/method": {
+			"get": {
+				"tags": [
+					"CheckPaymentMethod Services"
+				],
+				"operationId": "method",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Error interno del servidor",
+						"content": {
+							"application/json": {
+								"example": {
+									"result": "Error",
+									"error": "mensaje del error"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"DebitCreditTransactionsTO": {
+				"type": "object",
+				"properties": {
+					"oid": {
+						"type": "string"
+					},
+					"version": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"creditDebitId": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"groupNumber": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"organizer": {
+						"type": "string"
+					},
+					"producer": {
+						"type": "string"
+					},
+					"cardCode": {
+						"type": "string"
+					},
+					"card": {
+						"type": "string"
+					},
+					"cardholderName": {
+						"type": "string"
+					},
+					"shipmentNumber": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"policyNumber": {
+						"type": "string"
+					},
+					"supplementNumber": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"insuredName": {
+						"type": "string"
+					},
+					"installmentNumber": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"amount": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"summaryAmount": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"exchangeDifferenceAmount": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"debitDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"shipmentStatus": {
+						"type": "string"
+					},
+					"currencyCode": {
+						"type": "string"
+					},
+					"remittance": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"status": {
+						"type": "string"
+					},
+					"shipmentDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"cardId": {
+						"type": "string"
+					},
+					"customerId": {
+						"type": "string"
+					},
+					"oidPas": {
+						"type": "string"
+					},
+					"groupName": {
+						"type": "string"
+					},
+					"organizerName": {
+						"type": "string"
+					},
+					"producerName": {
+						"type": "string"
+					},
+					"cardDescription": {
+						"type": "string"
+					},
+					"debitType": {
+						"type": "string"
+					}
+				}
+			},
+			"RejectionsTO": {
+				"type": "object",
+				"properties": {
+					"oid": {
+						"type": "string"
+					},
+					"version": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"idRejections": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"groupNumber": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"organizer": {
+						"type": "string"
+					},
+					"producer": {
+						"type": "string"
+					},
+					"cardCode": {
+						"type": "string"
+					},
+					"card": {
+						"type": "string"
+					},
+					"cardholderName": {
+						"type": "string"
+					},
+					"shipmentNumber": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"policyNumber": {
+						"type": "string"
+					},
+					"supplementNumber": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"insuredName": {
+						"type": "string"
+					},
+					"installmentNumber": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"amount": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"currencyCode": {
+						"type": "string"
+					},
+					"rejectionReason": {
+						"type": "string"
+					},
+					"financialCoverageDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"requiredAction": {
+						"type": "string"
+					},
+					"regularizationDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"status": {
+						"type": "string"
+					},
+					"sendDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"cardId": {
+						"type": "string"
+					},
+					"customerId": {
+						"type": "string"
+					},
+					"oidPas": {
+						"type": "string"
+					},
+					"groupName": {
+						"type": "string"
+					},
+					"organizerName": {
+						"type": "string"
+					},
+					"producerName": {
+						"type": "string"
+					},
+					"cardDescription": {
+						"type": "string"
+					},
+					"rejectionType": {
+						"type": "string"
+					},
+					"mpRejectedLink": {
+						"type": "string"
+					}
+				}
+			},
+			"PaymentLinkRequestTO": {
+				"type": "object",
+				"properties": {
+					"oid": {
+						"type": "string"
+					},
+					"version": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"documentType": {
+						"type": "string"
+					},
+					"document": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"policy": {
+						"type": "string"
+					},
+					"usage": {
+						"type": "string"
+					},
+					"token": {
+						"type": "string"
+					},
+					"expirationDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"processNumber": {
+						"type": "integer",
+						"format": "int32"
+					}
+				}
+			},
+			"CheckPaymentMethodTO": {
+				"type": "object",
+				"properties": {
+					"oid": {
+						"type": "string"
+					},
+					"version": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"createUser": {
+						"type": "string"
+					},
+					"createTimestamp": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updateUser": {
+						"type": "string"
+					},
+					"updateTimestamp": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"policy": {
+						"type": "string"
+					},
+					"previousCardCbu": {
+						"type": "string"
+					},
+					"previousPaymentMethod": {
+						"type": "string"
+					},
+					"currentCardCbu": {
+						"type": "string"
+					},
+					"currentPaymentMethod": {
+						"type": "string"
+					},
+					"paymentLinkSent": {
+						"type": "string"
+					},
+					"currentCopyPolicy": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"PROVISORIO",
+							"DEFINITIVO"
+						]
+					},
+					"processNumber": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"cardHolder": {
+						"type": "string"
+					},
+					"oidPas": {
+						"type": "string"
+					},
+					"groupNumber": {
+						"type": "string"
+					},
+					"organizer": {
+						"type": "string"
+					},
+					"producer": {
+						"type": "string"
+					},
+					"groupName": {
+						"type": "string"
+					},
+					"organizerName": {
+						"type": "string"
+					},
+					"producerName": {
+						"type": "string"
+					},
+					"cardId": {
+						"type": "string"
+					},
+					"customerId": {
+						"type": "string"
+					},
+					"dniTitular": {
+						"type": "string"
+					},
+					"emailTitular": {
+						"type": "string"
+					},
+					"codTarjeta": {
+						"type": "string"
+					},
+					"fechaVencimientoTarjeta": {
+						"type": "string"
+					}
+				}
+			},
+			"CalendarEventTO": {
+				"type": "object",
+				"properties": {
+					"oid": {
+						"type": "string"
+					},
+					"version": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"createUser": {
+						"type": "string"
+					},
+					"createTimestamp": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updateUser": {
+						"type": "string"
+					},
+					"updateTimestamp": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"id": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"month": {
+						"type": "string"
+					},
+					"processId": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"orderNumber": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"title": {
+						"type": "string"
+					},
+					"startDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"endDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"debitDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"description": {
+						"type": "string"
+					},
+					"editable": {
+						"type": "boolean"
+					},
+					"ejecutionMethod": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					},
+					"ejecutionStatus": {
+						"type": "string"
+					},
+					"deactivationDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"deactivationUser": {
+						"type": "string"
+					},
+					"activationDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdByUser": {
+						"type": "string"
+					},
+					"lastUpdateDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"lastUpdatedByUser": {
+						"type": "string"
+					}
+				}
+			},
+			"Data": {
+				"type": "object",
+				"properties": {
+					"payment": {
+						"$ref": "#/components/schemas/Payment"
+					},
+					"subscriber": {
+						"$ref": "#/components/schemas/Subscriber"
+					}
+				}
+			},
+			"MobexCallbackJsonTO": {
+				"type": "object",
+				"properties": {
+					"data": {
+						"$ref": "#/components/schemas/Data"
+					}
+				}
+			},
+			"Payment": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"status": {
+						"$ref": "#/components/schemas/Status"
+					}
+				}
+			},
+			"Status": {
+				"type": "object",
+				"properties": {
+					"resultCode": {
+						"type": "string"
+					},
+					"text": {
+						"type": "string"
+					}
+				}
+			},
+			"Subscriber": {
+				"type": "object",
+				"properties": {
+					"uid": {
+						"type": "string"
+					}
+				}
+			},
+			"ResponseTOString": {
+				"required": [
+					"result"
+				],
+				"type": "object",
+				"properties": {
+					"result": {
+						"type": "string"
+					},
+					"error": {
+						"type": "string",
+						"nullable": true
+					}
+				}
+			},
+			"Identification": {
+				"type": "object",
+				"properties": {
+					"type": {
+						"type": "string"
+					},
+					"number": {
+						"type": "string"
+					}
+				}
+			},
+			"Payer": {
+				"type": "object",
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/Identification"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					}
+				}
+			},
+			"PaymentRequestTO": {
+				"type": "object",
+				"properties": {
+					"token": {
+						"type": "string"
+					},
+					"issuerId": {
+						"type": "string"
+					},
+					"paymentMethodId": {
+						"type": "string"
+					},
+					"transactionAmount": {
+						"type": "number"
+					},
+					"installments": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"payer": {
+						"$ref": "#/components/schemas/Payer"
+					},
+					"tokenPaymentLink": {
+						"type": "string"
+					},
+					"policy": {
+						"type": "string"
+					}
+				}
+			},
+			"CheckPaymentLinkRequestTO": {
+				"type": "object",
+				"properties": {
+					"checkPaymentMethod": {
+						"$ref": "#/components/schemas/CheckPaymentMethodTO"
+					},
+					"paymentLinkRequest": {
+						"$ref": "#/components/schemas/PaymentLinkRequestTO"
+					}
+				}
+			},
+			"ValidationsRequestTO": {
+				"type": "object",
+				"properties": {
+					"codOrg": {
+						"type": "string"
+					},
+					"codProd": {
+						"type": "string"
+					},
+					"grupo": {
+						"type": "string"
+					},
+					"nroPoliza": {
+						"type": "string"
+					}
+				}
+			},
+			"CardsPoliciesRequestTO": {
+				"type": "object",
+				"properties": {
+					"codOrg": {
+						"type": "string"
+					},
+					"codProd": {
+						"type": "string"
+					},
+					"dniPersona": {
+						"type": "string"
+					},
+					"grupo": {
+						"type": "string"
+					},
+					"nroPoliza": {
+						"type": "string"
+					}
+				}
+			},
+			"GopTO": {
+				"type": "object",
+				"properties": {
+					"codGrupo": {
+						"type": "string"
+					},
+					"codOrganizador": {
+						"type": "string"
+					},
+					"codProductor": {
+						"type": "string"
+					},
+					"idProductor": {
+						"type": "string"
+					},
+					"descGrupo": {
+						"type": "string"
+					},
+					"descOrganizador": {
+						"type": "string"
+					},
+					"descProductor": {
+						"type": "string"
+					},
+					"indicVigente": {
+						"type": "boolean"
+					},
+					"nroNivelGop": {
+						"type": "string"
+					}
+				}
+			}
+		}
+	}
 }
