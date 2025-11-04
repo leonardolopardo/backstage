@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Documents MS",
-    "description": "Documents MS",
+    "title": "Events MS",
+    "description": "Events MS",
     "version": "1.0"
   },
   "servers": [
@@ -11,8 +11,136 @@
       "description": "Servidor local en puerto 9001"
     }
   ],
+  "tags": [
+    {
+      "name": "Events",
+      "description": "API para registrar eventos en el sistema"
+    },
+    {
+      "name": "Errors",
+      "description": "API para registrar errores en el sistema"
+    }
+  ],
   "paths": {
-    "/documents/public/app/version": {
+    "/events-ms/events": {
+      "post": {
+        "tags": ["Events"],
+        "summary": "Registrar un evento",
+        "description": "Crea un nuevo evento en el sistema y lo almacena en la base de datos.",
+        "operationId": "logEvent",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Evento registrado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "message": "Created resource"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Petición inválida",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events-ms/errors": {
+      "post": {
+        "tags": ["Errors"],
+        "summary": "Registrar un error",
+        "description": "Crea un nuevo registro de error en el sistema y lo almacena en la base de datos.",
+        "operationId": "logError",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Petición inválida",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Error registrado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "message": "Created resource"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events-ms/public/app/version": {
       "get": {
         "tags": ["application-controller"],
         "operationId": "getVersion",
@@ -33,7 +161,7 @@
         }
       }
     },
-    "/documents/public/app/healthCheck": {
+    "/events-ms/public/app/healthCheck": {
       "get": {
         "tags": ["application-controller"],
         "operationId": "healthCheck",
@@ -53,296 +181,193 @@
           }
         }
       }
-    },
-    "/documents/policies": {
-      "get": {
-        "tags": ["documents-controller"],
-        "summary": "Obtener póliza",
-        "description": "Retorna los metadatos de una póliza a partir de su número, endoso y parte.",
-        "operationId": "getPolicy",
-        "parameters": [
-          {
-            "name": "policyNumber",
-            "in": "query",
-            "description": "Número de póliza",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "example": 123456
-          },
-          {
-            "name": "endorsement",
-            "in": "query",
-            "description": "Número de endoso",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "example": 1
-          },
-          {
-            "name": "part",
-            "in": "query",
-            "description": "Número de parte de la póliza",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 1
-            },
-            "example": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Póliza encontrada",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/DocumentResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/documents/policies/content": {
-      "get": {
-        "tags": ["documents-controller"],
-        "summary": "Obtener contenido de póliza",
-        "description": "Retorna el contenido de una póliza en formato base64.",
-        "operationId": "getPolicyContent",
-        "parameters": [
-          {
-            "name": "policyNumber",
-            "in": "query",
-            "description": "Número de póliza",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "example": 123456
-          },
-          {
-            "name": "endorsement",
-            "in": "query",
-            "description": "Número de endoso",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "example": 1
-          },
-          {
-            "name": "part",
-            "in": "query",
-            "description": "Número de parte de la póliza",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 1
-            },
-            "example": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Contenido PDF en base64",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContentResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/documents/certificates": {
-      "get": {
-        "tags": ["documents-controller"],
-        "summary": "Obtener certificado",
-        "description": "Retorna los metadatos de un certificado asociado a una póliza.",
-        "operationId": "getCertificate",
-        "parameters": [
-          {
-            "name": "policyNumber",
-            "in": "query",
-            "description": "Número de póliza",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "example": 123456
-          },
-          {
-            "name": "endorsement",
-            "in": "query",
-            "description": "Número de endoso",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "example": 1
-          },
-          {
-            "name": "item",
-            "in": "query",
-            "description": "Número de ítem asociado (opcional)",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "example": 5
-          },
-          {
-            "name": "documentCode",
-            "in": "query",
-            "description": "Código de documento",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "example": 100
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Certificado encontrado",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/DocumentResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/documents/certificates/content": {
-      "get": {
-        "tags": ["documents-controller"],
-        "summary": "Obtener contenido de certificado",
-        "description": "Retorna el contenido de un certificado en formato base64.",
-        "operationId": "getCertificateContent",
-        "parameters": [
-          {
-            "name": "policyNumber",
-            "in": "query",
-            "description": "Número de póliza",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "example": 123456
-          },
-          {
-            "name": "endorsement",
-            "in": "query",
-            "description": "Número de endoso",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "example": 1
-          },
-          {
-            "name": "item",
-            "in": "query",
-            "description": "Número de ítem asociado (opcional)",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "example": 5
-          },
-          {
-            "name": "documentCode",
-            "in": "query",
-            "description": "Código de documento",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "example": 100
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Contenido PDF en base64",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContentResponse"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
-      "DocumentResponse": {
+      "EventRequest": {
         "type": "object",
         "properties": {
-          "documentUrl": {
+          "application": {
             "type": "string",
-            "description": "URL del documento a recuperar",
-            "example": "https://server.com/documents/Poliza_123456.pdf"
+            "description": "Nombre de la aplicación que genera el evento",
+            "example": "mobile-app"
+          },
+          "applicationVersion": {
+            "type": "string",
+            "description": "Versión de la aplicación",
+            "example": "1.0.3"
+          },
+          "userId": {
+            "type": "string",
+            "description": "Identificador único del usuario asociado al evento",
+            "example": "user-123"
+          },
+          "sessionId": {
+            "type": "string",
+            "description": "Identificador de la sesión en curso",
+            "example": "session-abc-456"
+          },
+          "action": {
+            "type": "string",
+            "description": "Acción realizada por el usuario o sistema",
+            "example": "LOGIN"
+          },
+          "description": {
+            "type": "string",
+            "description": "Descripción adicional del evento",
+            "example": "Usuario inició sesión desde dispositivo Android"
+          },
+          "deviceInfo": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Información del dispositivo desde el que se ejecutó la acción",
+              "example": {
+                "os": "Android",
+                "version": "14",
+                "model": "Samsung S23"
+              }
+            },
+            "description": "Información del dispositivo desde el que se ejecutó la acción",
+            "example": {
+              "os": "Android",
+              "version": "14",
+              "model": "Samsung S23"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Metadatos adicionales relacionados con el evento",
+              "example": {
+                "location": "Buenos Aires",
+                "network": "WiFi"
+              }
+            },
+            "description": "Metadatos adicionales relacionados con el evento",
+            "example": {
+              "location": "Buenos Aires",
+              "network": "WiFi"
+            }
+          },
+          "httpLog": {
+            "$ref": "#/components/schemas/HttpLog"
           }
         },
-        "description": "Respuesta con la URL del documento disponible para su descarga o visualización"
+        "description": "Objeto que representa un evento a registrar en el sistema"
       },
-      "ContentResponse": {
+      "HttpLog": {
         "type": "object",
         "properties": {
-          "fileName": {
+          "url": {
             "type": "string",
-            "description": "Nombre del archivo",
-            "example": "Poliza_123456.pdf"
+            "description": "URL de la petición realizada",
+            "example": "https://api.misitio.com/orders"
           },
-          "contentType": {
+          "queryParams": {
             "type": "string",
-            "description": "Tipo de contenido MIME",
-            "example": "application/pdf"
+            "description": "Parámetros de la query enviados en la petición",
+            "example": "userId=123&status=active"
           },
-          "contentEncoding": {
+          "requestBody": {
             "type": "string",
-            "description": "Codificación utilizada",
-            "example": "base64"
+            "description": "Cuerpo de la petición enviada",
+            "example": "{\"productId\":\"A001\",\"quantity\":2}"
           },
-          "contentLength": {
+          "responseBody": {
+            "type": "string",
+            "description": "Cuerpo de la respuesta recibida",
+            "example": "{\"orderId\":\"ORD-98765\",\"status\":\"CREATED\"}"
+          },
+          "statusCode": {
             "type": "integer",
-            "description": "Tamaño del archivo en bytes",
-            "format": "int64",
-            "example": 24576
-          },
-          "content": {
-            "type": "string",
-            "description": "Contenido del archivo codificado en base64",
-            "example": "JVBERi0xLjQKJcfs..."
+            "description": "Código de estado HTTP recibido",
+            "format": "int32",
+            "example": 201
           }
         },
-        "description": "Respuesta con contenido de un documento en base64 y metadatos asociados"
+        "description": "Detalle de la comunicación HTTP asociada a un evento o error"
+      },
+      "ErrorRequest": {
+        "type": "object",
+        "properties": {
+          "application": {
+            "type": "string",
+            "description": "Nombre de la aplicación que generó el error",
+            "example": "mobile-app"
+          },
+          "applicationVersion": {
+            "type": "string",
+            "description": "Versión de la aplicación",
+            "example": "1.0.3"
+          },
+          "userId": {
+            "type": "string",
+            "description": "Identificador único del usuario afectado por el error",
+            "example": "user-123"
+          },
+          "sessionId": {
+            "type": "string",
+            "description": "Identificador de la sesión en curso",
+            "example": "session-xyz-789"
+          },
+          "action": {
+            "type": "string",
+            "description": "Acción que estaba ejecutando el usuario al generarse el error",
+            "example": "CREATE_ORDER"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Mensaje de error generado por la aplicación o servicio",
+            "example": "NullPointerException en OrderService"
+          },
+          "statusCode": {
+            "type": "integer",
+            "description": "Código de estado asociado al error (HTTP o interno)",
+            "format": "int32",
+            "example": 500
+          },
+          "deviceInfo": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Información del dispositivo donde ocurrió el error",
+              "example": {
+                "os": "iOS",
+                "version": "17.2",
+                "model": "iPhone 14"
+              }
+            },
+            "description": "Información del dispositivo donde ocurrió el error",
+            "example": {
+              "os": "iOS",
+              "version": "17.2",
+              "model": "iPhone 14"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Metadatos adicionales relacionados con el error",
+              "example": {
+                "location": "Córdoba",
+                "network": "4G"
+              }
+            },
+            "description": "Metadatos adicionales relacionados con el error",
+            "example": {
+              "location": "Córdoba",
+              "network": "4G"
+            }
+          },
+          "httpLog": {
+            "$ref": "#/components/schemas/HttpLog"
+          }
+        },
+        "description": "Objeto que representa un error a registrar en el sistema"
       }
     }
   }
