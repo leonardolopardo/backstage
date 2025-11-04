@@ -3,62 +3,185 @@
   "info": {
     "title": "API de Denuncias Allianz",
     "version": "1.0.0",
-    "description": "API para dar de alta una denuncia sin aparente (sin AP) en el sistema de seguros."
+    "description": "API para registrar una nueva denuncia de siniestro sin motor."
   },
-  "servers": [
-    {
-      "url": "http://example.allianz.com.ar/api/denuncias",
-      "description": "Servidor de Producción de Denuncias"
-    }
-  ],
   "paths": {
-    "/alta": {
+    "/denuncias/sin-motor": {
       "post": {
-        "summary": "Crear una nueva denuncia sin AP.",
-        "description": "Recibe los datos de una denuncia para ser registrada en el sistema.",
+        "summary": "Registrar una denuncia sin motor.",
+        "description": "Envía los datos necesarios para registrar una denuncia de siniestro que no está relacionada con un vehículo de motor.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AltaDenunciaSinApIn"
+                "$ref": "#/components/schemas/AltaDenunciaSinMotorIn"
               },
               "example": {
-                "AltaDenunciaSinApIn": {
+                "AltaDenunciaSinMotorIn": {
                   "datosDenuncia": {
-                    "codGrupo": "2401",
-                    "codOrganizador": "M2401",
-                    "codProductor": "M2401",
-                    "codSeccion": "210",
-                    "fecOcurrecia": "2024-08-25",
-                    "fecDenuncia": "2024-08-25",
-                    "nroPoliza": "242100522986",
+                    "idProceso": null,
+                    "codGrupo": "1702",
+                    "codOrganizador": "M0945",
+                    "codProductor": "M0945",
+                    "codSeccion": "004",
+                    "fecOcurrecia": "2024-07-21",
+                    "fecDenuncia": "2024-07-21",
+                    "nroPoliza": "240040132374",
                     "nroRiesgo": 1,
                     "nroEndoso": 5
                   },
                   "detalleDenuncia": {
-                    "idSeccion": "210",
-                    "idTipoSiniestro": "A",
-                    "deTipoSiniestro": "ACCIDENTE",
-                    "idCausaSiniestro": "IP",
-                    "deCausaSiniestro": "INCAPACIDAD PARCIAL",
-                    "deHechos": "Venia circulando y me choco una bicicleta",
+                    "idSeccion": "004",
+                    "idTipoSiniestro": "DO",
+                    "idCausaSiniestro": "CH",
+                    "deCausaSiniestro": "CHOQUE",
+                    "deHechos": "Venia circulando y choque",
                     "indExtemporaneo": "N",
                     "deExtemporaneo": null,
                     "nroRiesgoUbicacion": 1,
-                    "emailAsegurado": "HORACIORIV2012@HOTMAIL.COM",
-                    "telefAsegurado": "02323641800"
+                    "emailAsegurado": "MARIANAJELENC@YAHOO.COM.AR",
+                    "telefAsegurado": "01146582059"
                   },
-                  "detalleAp": {
-                    "idProvinciaOcurr": "01",
-                    "idLocalidadOcurr": "005",
-                    "idCpOcur": "6708",
-                    "deDirCalleOcurr": "9 DE JULIO",
-                    "deDirNroOcurr": "2500",
-                    "deTareas": "CONTADOR",
-                    "indTareasSiniestro": "S",
-                    "deDanos": "Esguince de tobillo"
-                  }
+                  "detalleMotor": [
+                    {
+                      "indDestTotal": "N",
+                      "idProvinciaOcurr": "02",
+                      "idLocalidadOcurr": "0",
+                      "idZpOcurr": "1107",
+                      "deDanos": "carroceria",
+                      "idEstadoTiempo": "V",
+                      "idTipoSenial": "NP",
+                      "deEdoTipoSenial": "NO VIOLADA: CARTEL PARE",
+                      "idTipoCalzada": "A",
+                      "deEdoTipoCalzada": "H",
+                      "nroActaPolicial": 0,
+                      "deComisaria": null,
+                      "deSecretaria": null,
+                      "nroTerceros": 1,
+                      "indDatosTerceros": "S",
+                      "nroLesionados": 1,
+                      "indDatosLesionados": "S",
+                      "indAsegConductor": "S",
+                      "indAsegDenunciante": "S",
+                      "idLugarOcurr": "2",
+                      "idDireccionOcurr": "AV",
+                      "deDirCalleOcurr": "CORDOBA",
+                      "idProvinciaAdic": null,
+                      "idLocalidadAdic": null,
+                      "idZpAdic": null,
+                      "deInspLugar": null,
+                      "fecInspeccion": null,
+                      "idTipoInspector": null,
+                      "cdInspector": null,
+                      "deInspTelefono": null,
+                      "deInspCorreo": null,
+                      "colorVehiculo": "BLANCO",
+                      "dePaisOcurr": "Argentina",
+                      "idGradoDanio": null,
+                      "indCondicionCircular": "S",
+                      "datoTerceros": [
+                        {
+                          "idDenuncia": null,
+                          "nrDetalle": null,
+                          "idTipoTercero": "AU",
+                          "idTipoDocumento": "D",
+                          "nrDocumento": "36546789",
+                          "deNombre": "Sin Nombre",
+                          "deSexo": "H",
+                          "idProvincia": "13",
+                          "idLocalidad": "1",
+                          "idZp": "2451",
+                          "deTelefono": "3834567890",
+                          "deEmail": "asdasd@gmail.com",
+                          "indLesionado": "N",
+                          "deBien": "SIN DATOS",
+                          "fecRegistro": "2024-07-21",
+                          "cdUsuario": "AGFN",
+                          "idMarcaVehiculo": "57",
+                          "deMarcaVehiculo": "FORD",
+                          "nrAnio": "1992",
+                          "idTipoVehiculo": 1,
+                          "deTipoVehiculo": "SIN DATOS",
+                          "idUsoVehiculo": 1,
+                          "deUsoVehiculo": "PARTICULAR",
+                          "dePatente": "SIN DATOS",
+                          "deChassis": "SIN DATOS",
+                          "deMotor": "SIN DATOS",
+                          "deColor": "Verde",
+                          "idCompania": "930"
+                        }
+                      ],
+                      "datoLesionados": [
+                        {
+                          "idDenuncia": null,
+                          "nrDetalle": null,
+                          "idTipoLesionado": "MO",
+                          "cdTipoLesion": "L",
+                          "idTipoDocumento": "D",
+                          "nrDocumento": "45678987",
+                          "deNombre": "Sin Nombres",
+                          "deSexo": "M",
+                          "idProvincia": "13",
+                          "idLocalidad": "003",
+                          "idZp": "2451",
+                          "deTelefono": "3834345678",
+                          "deEmail": "sinnombre@gmail.com",
+                          "nrEdad": 40,
+                          "idRelAseg": "OT",
+                          "fecRegistro": "2024-07-21",
+                          "cdUsuario": "AGFN"
+                        }
+                      ],
+                      "datoConductor": {
+                        "idTipoDocumento": "D",
+                        "nrDocumento": "11097140",
+                        "deNombre": "ZUPAN HERNAN",
+                        "deSexo": "H",
+                        "idPais": "54",
+                        "dePais": "Argentina",
+                        "idProvincia": "02",
+                        "deProvincia": "Capital Federal",
+                        "idLocalidad": "0",
+                        "deLocalidad": "Capital Federal",
+                        "idZp": "1107",
+                        "deZp": "1107",
+                        "deTelefono": "01146582059",
+                        "deEmail": "MARIANAJELENC@YAHOO.COM.AR",
+                        "idRelAseg": " ",
+                        "indDenunciante": "S",
+                        "indHabitual": "S",
+                        "fecRegistro": "2024-07-21",
+                        "cdUsuario": "AGFN"
+                      },
+                      "datoDenunciante": {
+                        "idTipoDocumento": "D",
+                        "nrDocumento": "11097140",
+                        "deNombre": "ZUPAN HERNAN",
+                        "deTelefono": "01146582059",
+                        "deEmail": "MARIANAJELENC@YAHOO.COM.AR",
+                        "idRelAseg": " ",
+                        "fecRegistro": "2024-07-21",
+                        "cdUsuario": "AGFN"
+                      },
+                      "datoPartes": [
+                        {
+                          "idDenuncia": null,
+                          "nrDetalle": null,
+                          "idParte": 3,
+                          "fecRegistro": "2024-07-21",
+                          "cdUsuario": "AGFN"
+                        }
+                      ],
+                      "datoProveedores": [
+                        {
+                          "idDenuncia": null,
+                          "nrDetalle": null,
+                          "idProveedor": "192"
+                        }
+                      ]
+                    }
+                  ]
                 }
               }
             }
@@ -66,29 +189,44 @@
         },
         "responses": {
           "200": {
-            "description": "Denuncia creada con éxito.",
+            "description": "Denuncia registrada exitosamente.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "mensaje": {
+                    "message": {
                       "type": "string"
                     },
-                    "nroDenuncia": {
-                      "type": "string"
+                    "idDenuncia": {
+                      "type": "integer"
                     }
                   }
                 },
                 "example": {
-                  "mensaje": "Denuncia registrada correctamente.",
-                  "nroDenuncia": "123456789"
+                  "message": "Denuncia creada con éxito.",
+                  "idDenuncia": 12345
                 }
               }
             }
           },
           "400": {
-            "description": "Solicitud inválida. El formato de los datos es incorrecto."
+            "description": "Solicitud inválida. Faltan datos o el formato es incorrecto.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "error": "El campo 'nroPoliza' es requerido."
+                }
+              }
+            }
           }
         }
       }
@@ -96,7 +234,7 @@
   },
   "components": {
     "schemas": {
-      "AltaDenunciaSinApIn": {
+      "AltaDenunciaSinMotorIn": {
         "type": "object",
         "properties": {
           "datosDenuncia": {
@@ -105,14 +243,21 @@
           "detalleDenuncia": {
             "$ref": "#/components/schemas/DetalleDenuncia"
           },
-          "detalleAp": {
-            "$ref": "#/components/schemas/DetalleAp"
+          "detalleMotor": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetalleMotor"
+            }
           }
         }
       },
       "DatosDenuncia": {
         "type": "object",
         "properties": {
+          "idProceso": {
+            "type": "integer",
+            "nullable": true
+          },
           "codGrupo": {
             "type": "string"
           },
@@ -153,9 +298,6 @@
           "idTipoSiniestro": {
             "type": "string"
           },
-          "deTipoSiniestro": {
-            "type": "string"
-          },
           "idCausaSiniestro": {
             "type": "string"
           },
@@ -176,43 +318,42 @@
             "type": "integer"
           },
           "emailAsegurado": {
-            "type": "string",
-            "format": "email"
+            "type": "string"
           },
           "telefAsegurado": {
             "type": "string"
           }
         }
       },
-      "DetalleAp": {
+      "DetalleMotor": {
         "type": "object",
         "properties": {
+          "indDestTotal": {
+            "type": "string"
+          },
           "idProvinciaOcurr": {
             "type": "string"
           },
           "idLocalidadOcurr": {
             "type": "string"
           },
-          "idCpOcur": {
-            "type": "string"
-          },
-          "deDirCalleOcurr": {
-            "type": "string"
-          },
-          "deDirNroOcurr": {
-            "type": "string"
-          },
-          "deTareas": {
-            "type": "string"
-          },
-          "indTareasSiniestro": {
+          "idZpOcurr": {
             "type": "string"
           },
           "deDanos": {
             "type": "string"
+          },
+          "idEstadoTiempo": {
+            "type": "string"
+          },
+          "idTipoSenial": {
+            "type": "string"
+          },
+          "deEdoTipoSenial": {
+            "type": "string"
           }
-        }
-      }
-    }
+		}
+	  }
+	}
   }
 }
