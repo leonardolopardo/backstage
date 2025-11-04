@@ -1,11 +1,651 @@
 openapi: 3.0.0
 info:
-  title: API de Ejemplo
+  title: Servicios Home Allianz Network - News and Banners
   version: 1.0.0
+  description: |
+    API documentation for ApiNovedadesController endpoints.
+    
+    This file documents 3 endpoints from the ApiNovedadesController.
+    
+    **Common Components**: For shared schemas and security configuration, see `openapi-common.yaml`
+
+# Reference common file (for documentation purposes)
+x-common-spec: openapi-common.yaml
+
+# Use same servers as common file
+servers:
+  - url: https://api.allianz.com.ar/v1
+    description: Production
+  - url: http://localhost:8080/v1
+    description: Local Development
+
+# Use same security schemes as common file
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: OAuth2 authentication via Kong API Gateway
+      flows:
+        clientCredentials:
+          tokenUrl: http://testauth.allianz.com.ar/token
+          scopes: {}
+
+# Default security for this controller
+security:
+  - oauth2: []
+
+tags:
+  - name: News and Banners
+    description: Manages news articles and promotional banners for the home portal
+
 paths:
-  /saludo:
+  /novedades:
     get:
-      summary: Retorna un saludo
+      summary: Get News Articles
+      description: |
+        Retrieves the list of news articles (novedades) for the authenticated user.
+        News articles provide information, updates, and announcements for portal users.
+        
+        **Database Procedure**:
+        - Schema: `COMERCIAL`
+        - Package: `API_NOVEDADES`
+        - Procedure: `P_GET_NOVEDADES`
+        
+        **Security**: 
+        - Authentication: Required (OAuth2)
+        - Authorization: Any authenticated user
+        
+        **Use Cases**:
+        - Display news feed on home portal
+        - Show recent updates and announcements
+        - Provide informational content to users
+        
+        **Query Parameters**:
+        The endpoint accepts query parameters that are deserialized into TyNovedadIn.
+        Common parameters may include filters for news type, date range, or read status.
+        
+      operationId: getNovedades
+      tags:
+        - News and Banners
+      security:
+        - oauth2: []
+      parameters:
+        - name: codNovedad
+          in: query
+          description: News article code (filter by specific news)
+          schema:
+            type: number
+          required: false
+        - name: tipoNovedad
+          in: query
+          description: Type of news article (filter by type)
+          schema:
+            type: string
+          required: false
       responses:
         '200':
-          description: Respuesta exitosa
+          description: News articles retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  NovedadOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyNovedadOut'
+              example:
+                NovedadOut:
+                  - response:
+                      responseCode: 200
+                      responseId: null
+                      description: null
+                    novedades:
+                      - codNovedad: 1001
+                        tituloNovedad: "Nueva Funcionalidad Disponible"
+                        resumenNovedad: "Ahora puedes gestionar tus pólizas más fácilmente"
+                        textoNovedad: "Hemos lanzado una nueva funcionalidad que te permite..."
+                        textoNovedad1: "Características principales:"
+                        textoNovedad2: "- Visualización mejorada\n- Mayor velocidad\n- Nuevas opciones"
+                        fechaNovedad: "2025-01-15 10:30:00"
+                        estadoNovedad: "ACTIVE"
+                        tipoNovedad: "FEATURE"
+                        usuarioNovedad: "admin"
+                        link: "https://portal.allianz.com.ar/features/new-policy-management"
+                        mcaLeida: "N"
+                      - codNovedad: 1002
+                        tituloNovedad: "Mantenimiento Programado"
+                        resumenNovedad: "El portal estará en mantenimiento este fin de semana"
+                        textoNovedad: "Informamos que realizaremos mantenimiento..."
+                        textoNovedad1: "Fecha: Sábado 20 de enero"
+                        textoNovedad2: "Horario: 02:00 - 06:00 AM"
+                        fechaNovedad: "2025-01-10 15:45:00"
+                        estadoNovedad: "ACTIVE"
+                        tipoNovedad: "ANNOUNCEMENT"
+                        usuarioNovedad: "system"
+                        link: null
+                        mcaLeida: "S"
+        '400':
+          description: Bad Request - Invalid parameters or SQL exception
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  NovedadOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyNovedadOut'
+              example:
+                NovedadOut:
+                  - response:
+                      responseCode: 400
+                      responseId: null
+                      description: "Error en request: Invalid filter parameters"
+                    novedades: []
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+        '500':
+          description: Internal Server Error - Unexpected error occurred
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  NovedadOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyNovedadOut'
+              example:
+                NovedadOut:
+                  - response:
+                      responseCode: 500
+                      responseId: null
+                      description: "Error inesperado"
+                    novedades: []
+    
+    put:
+      summary: Mark News as Read
+      description: |
+        Marks a news article as read for the authenticated user.
+        This endpoint updates the read status (mcaLeida) of a specific news article.
+        
+        **Database Procedure**:
+        - Schema: `COMERCIAL`
+        - Package: `API_NOVEDADES`
+        - Procedure: `P_PUT_NOVEDADES`
+        
+        **Security**: 
+        - Authentication: Required (OAuth2)
+        - Authorization: Any authenticated user
+        
+        **Use Cases**:
+        - Mark news as read when user views it
+        - Track which news articles the user has seen
+        - Update user's news feed read status
+        
+      operationId: putNovedades
+      tags:
+        - News and Banners
+      security:
+        - oauth2: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                NovedadIn:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TyNovedadIn'
+            example:
+              NovedadIn:
+                - header:
+                    uuid: "550e8400-e29b-41d4-a716-446655440000"
+                    userName: "john.doe"
+                    userAuthProvider: 1
+                    applicationId: 100
+                  novedad:
+                    codNovedad: 1001
+                    mcaLeida: "S"
+      responses:
+        '200':
+          description: News read status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  RespuestaOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyRespuestaOut'
+              example:
+                RespuestaOut:
+                  - response:
+                      responseCode: 200
+                      responseId: null
+                      description: "News marked as read successfully"
+        '400':
+          description: Bad Request - Invalid parameters or SQL exception
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  RespuestaOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyRespuestaOut'
+              example:
+                RespuestaOut:
+                  - response:
+                      responseCode: 400
+                      responseId: null
+                      description: "Error en request: Invalid news code"
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+        '500':
+          description: Internal Server Error - Unexpected error occurred
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  RespuestaOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyRespuestaOut'
+              example:
+                RespuestaOut:
+                  - response:
+                      responseCode: 500
+                      responseId: null
+                      description: "Error inesperado"
+
+  /banners:
+    get:
+      summary: Get Promotional Banners
+      description: |
+        Retrieves the list of promotional banners to display on the home portal.
+        Banners are used for marketing, announcements, and promotional content.
+        
+        **Database Procedure**:
+        - Schema: `COMERCIAL`
+        - Package: `API_NOVEDADES`
+        - Procedure: `P_GET_BANNERS`
+        
+        **Security**: 
+        - Authentication: Required (OAuth2)
+        - Authorization: Any authenticated user
+        
+        **Use Cases**:
+        - Display promotional banners on home page
+        - Show marketing campaigns
+        - Highlight important announcements visually
+        - Provide clickable links to specific content or offers
+        
+        **Query Parameters**:
+        The endpoint accepts query parameters that are deserialized into TyBannerIn.
+        Common parameters may include filters for banner position, active status, or type.
+        
+      operationId: getBanners
+      tags:
+        - News and Banners
+      security:
+        - oauth2: []
+      parameters:
+        - name: nroPos
+          in: query
+          description: Banner position number (filter by position)
+          schema:
+            type: string
+          required: false
+      responses:
+        '200':
+          description: Banners retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  BannerOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyBannerOut'
+              example:
+                BannerOut:
+                  - response:
+                      responseCode: 200
+                      responseId: null
+                      description: null
+                    banners:
+                      - idFoto: 5001
+                        nroPos: "1"
+                        link: "https://portal.allianz.com.ar/promo/summer-2025"
+                        imgUrl: "https://cdn.allianz.com.ar/banners/summer-promo.jpg"
+                        mimeType: "image/jpeg"
+                        docSize: 152400
+                      - idFoto: 5002
+                        nroPos: "2"
+                        link: "https://portal.allianz.com.ar/products/life-insurance"
+                        imgUrl: "https://cdn.allianz.com.ar/banners/life-insurance-banner.png"
+                        mimeType: "image/png"
+                        docSize: 98600
+                      - idFoto: 5003
+                        nroPos: "3"
+                        link: null
+                        imgUrl: "https://cdn.allianz.com.ar/banners/announcement.jpg"
+                        mimeType: "image/jpeg"
+                        docSize: 187200
+        '400':
+          description: Bad Request - Invalid parameters or SQL exception
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  BannerOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyBannerOut'
+              example:
+                BannerOut:
+                  - response:
+                      responseCode: 400
+                      responseId: null
+                      description: "Error en request: Invalid position parameter"
+                    banners: []
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+        '500':
+          description: Internal Server Error - Unexpected error occurred
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  BannerOut:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TyBannerOut'
+              example:
+                BannerOut:
+                  - response:
+                      responseCode: 500
+                      responseId: null
+                      description: "Error inesperado"
+                    banners: []
+
+components:
+  schemas:
+    # ============================================
+    # INPUT TYPES
+    # ============================================
+    
+    # News Input Type (Inner structure - inside root array)
+    TyNovedadIn:
+      type: object
+      description: News input object (inner structure, not root)
+      required:
+        - header
+      properties:
+        header:
+          $ref: '#/components/schemas/TyHeader'
+        novedad:
+          $ref: '#/components/schemas/TyNovedad'
+          nullable: true
+          description: News article data to update
+    
+    # Banner Input Type (Inner structure - inside root array)
+    TyBannerIn:
+      type: object
+      description: Banner input object (inner structure, not root)
+      required:
+        - header
+      properties:
+        header:
+          $ref: '#/components/schemas/TyHeader'
+        banner:
+          $ref: '#/components/schemas/TyBanner'
+          nullable: true
+          description: Banner filter data
+    
+    # ============================================
+    # OUTPUT TYPES
+    # ============================================
+    
+    # News Output Type (Inner structure - inside root array)
+    TyNovedadOut:
+      type: object
+      description: News response object (inner structure, not root)
+      required:
+        - response
+      properties:
+        response:
+          $ref: '#/components/schemas/TyResponse'
+        novedades:
+          type: array
+          nullable: true
+          description: List of news articles (null or empty on error)
+          items:
+            $ref: '#/components/schemas/TyNovedad'
+    
+    # Banner Output Type (Inner structure - inside root array)
+    TyBannerOut:
+      type: object
+      description: Banner response object (inner structure, not root)
+      required:
+        - response
+      properties:
+        response:
+          $ref: '#/components/schemas/TyResponse'
+        banners:
+          type: array
+          nullable: true
+          description: List of promotional banners (null or empty on error)
+          items:
+            $ref: '#/components/schemas/TyBanner'
+    
+    # Simple Response Output Type (for PUT operations)
+    TyRespuestaOut:
+      type: object
+      description: Simple response object (only contains response metadata)
+      required:
+        - response
+      properties:
+        response:
+          $ref: '#/components/schemas/TyResponse'
+    
+    # ============================================
+    # BUSINESS DATA OBJECTS
+    # ============================================
+    
+    # News Article Object
+    TyNovedad:
+      type: object
+      description: News article detailed information
+      properties:
+        codNovedad:
+          type: number
+          description: News article code/ID
+          example: 1001
+          nullable: true
+        tituloNovedad:
+          type: string
+          description: News article title
+          example: "Nueva Funcionalidad Disponible"
+          nullable: true
+        resumenNovedad:
+          type: string
+          description: Brief summary of the news article
+          example: "Ahora puedes gestionar tus pólizas más fácilmente"
+          nullable: true
+        textoNovedad:
+          type: string
+          description: Main text content of the news article
+          example: "Hemos lanzado una nueva funcionalidad que te permite gestionar tus pólizas de manera más eficiente..."
+          nullable: true
+        textoNovedad1:
+          type: string
+          description: Additional text content section 1
+          example: "Características principales:"
+          nullable: true
+        textoNovedad2:
+          type: string
+          description: Additional text content section 2
+          example: "- Visualización mejorada\n- Mayor velocidad\n- Nuevas opciones"
+          nullable: true
+        fechaNovedad:
+          type: string
+          format: date-time
+          description: News article publication date and time
+          example: "2025-01-15 10:30:00"
+          nullable: true
+        estadoNovedad:
+          type: string
+          description: News article status (e.g., ACTIVE, INACTIVE)
+          example: "ACTIVE"
+          nullable: true
+        tipoNovedad:
+          type: string
+          description: Type of news article (e.g., FEATURE, ANNOUNCEMENT, ALERT)
+          example: "FEATURE"
+          nullable: true
+        usuarioNovedad:
+          type: string
+          description: User who created/published the news article
+          example: "admin"
+          nullable: true
+        link:
+          type: string
+          format: uri
+          description: Optional link for more information or related content
+          example: "https://portal.allianz.com.ar/features/new-policy-management"
+          nullable: true
+        mcaLeida:
+          type: string
+          description: Read status indicator (S = read, N = unread)
+          enum: ["S", "N"]
+          example: "N"
+          nullable: true
+    
+    # Banner Object
+    TyBanner:
+      type: object
+      description: Promotional banner information
+      properties:
+        idFoto:
+          type: number
+          description: Banner image ID
+          example: 5001
+          nullable: true
+        nroPos:
+          type: string
+          description: Banner position number (display order)
+          example: "1"
+          nullable: true
+        link:
+          type: string
+          format: uri
+          description: Clickable link when banner is clicked (null if non-clickable)
+          example: "https://portal.allianz.com.ar/promo/summer-2025"
+          nullable: true
+        imgUrl:
+          type: string
+          format: uri
+          description: URL to the banner image
+          example: "https://cdn.allianz.com.ar/banners/summer-promo.jpg"
+          nullable: true
+        mimeType:
+          type: string
+          description: Image MIME type (e.g., image/jpeg, image/png)
+          example: "image/jpeg"
+          nullable: true
+        docSize:
+          type: number
+          description: Image file size in bytes
+          example: 152400
+          nullable: true
+    
+    # ============================================
+    # COMMON SCHEMAS (from openapi-common.yaml)
+    # ============================================
+    
+    # Standard Header (from common)
+    TyHeader:
+      type: object
+      description: Standard request header with authentication metadata
+      required:
+        - uuid
+        - userName
+        - userAuthProvider
+        - applicationId
+      properties:
+        uuid:
+          type: string
+          description: Unique transaction identifier (UUID format)
+          example: "550e8400-e29b-41d4-a716-446655440000"
+          nullable: true
+        userName:
+          type: string
+          description: Authenticated user name from OAuth token
+          example: "john.doe"
+          nullable: true
+        userAuthProvider:
+          type: number
+          description: OAuth provider ID (1 = default)
+          example: 1
+          nullable: true
+        applicationId:
+          type: number
+          description: Application ID (100 = Home Portal)
+          example: 100
+          nullable: true
+    
+    # Standard Response (from common)
+    TyResponse:
+      type: object
+      description: Standard response metadata
+      properties:
+        responseCode:
+          type: integer
+          description: Response status code (HTTP status or custom business code)
+          example: 200
+          nullable: true
+        responseId:
+          type: string
+          description: Optional response identifier for tracking
+          example: null
+          nullable: true
+        description:
+          type: string
+          description: Response message (null on success, error message on failure)
+          example: null
+          nullable: true
