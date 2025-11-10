@@ -14,4 +14,4 @@ spec:
   # Your API definition goes here, or a reference to a file.
     # For example, if using OpenAPI:
   definition:
-  $text: 'https://github.com/leonardolopardo/backstage/blob/main/swagger.yaml'
+    $text: 'https://github.com/leonardolopardo/backstage/blob/main/swagger.yaml'
