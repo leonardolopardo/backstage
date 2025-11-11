@@ -1,0 +1,64 @@
+openapi: 3.0.0
+info:
+  title: Servicios Home Allianz Network - Health Check
+  version: 1.0.0
+  description: |
+    API documentation for Health Check endpoint.
+    
+    This file documents the single health check endpoint used for service monitoring and availability verification.
+    
+    **Important**: This endpoint is PUBLIC and does not require authentication.
+    
+    **Common Components**: For shared schemas and security configuration, see `openapi-common.yaml`
+
+# Reference common file (for documentation purposes)
+x-common-spec: openapi-common.yaml
+
+# Use same servers as common file
+servers:
+  - url: https://api.allianz.com.ar
+    description: Production
+
+paths:
+  /health:
+    get:
+      summary: Service Health Check
+      description: |
+        Returns the health status of the service. This endpoint is used by monitoring tools
+        and load balancers to verify service availability.
+        
+        **Security**: 
+        - Authentication: NOT required (Public endpoint)
+        - Authorization: None
+        
+        **Database Procedure**: None (does not interact with database)
+        
+        **Response Format**: Plain text string "ok"
+        
+        **Use Cases**:
+        - Kubernetes/Docker health checks
+        - Load balancer health monitoring
+        - Service availability verification
+        - Uptime monitoring
+        
+      operationId: getHealth
+      tags:
+        - Health Check
+      # No security required - this endpoint is public
+      security: []
+      responses:
+        '200':
+          description: Service is healthy and responding
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "ok"
+              examples:
+                success:
+                  summary: Service is healthy
+                  value: "ok"
+
+tags:
+  - name: Health Check
+    description: Service health monitoring endpoint
